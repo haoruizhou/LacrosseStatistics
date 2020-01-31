@@ -1,47 +1,33 @@
 import numpy as np
-import csv
+import time
 import sys
+
 
 names = np.array(
     [['00', 'Test 00'], ['02', 'Test 02'], ['03', 'Test 03'], ['04', 'Test 04'], ['09', 'Test 09'], ['18', 'Test 18']])
-
-
+visitorPlayers = np.array([[]])
+# TODO input visitor players list
 # player0 = main
 # player1 = assist1
 # player2 = assist2
 
 
-def playerName(num):
-    x = 0
-    name = "ERROR"
-    for x in range(len(names)):
-        if num == names[x][0]:
-            name = str(names[x][1])
-            break
-    return name
-
-
-def writeCsv(content):
-    with open("record.csv", "a") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(content)
-
-
-def newQuarter():
-    return
-
-
-def score(main, a1, a2, side):
-    # 加分到list，写进csv
-    return 0
+def writeTxt(content, quarterStart):
+    current = time.strftime('%H%M%S', time.localtime(time.time()))
+    diff = int(current) - int(quarterStart)
+    file = open("record.txt", "a")
+    # input structure: what happened, current time, T+ quarter start
+    # T+ need to convert seconds to min / hour (in statsReader.py)
+    file.write(content + "," + str(current) + "," + str(diff) + "\n")
+    file.close()
 
 
 def main():
+    quarterStart = 0
     while True:
         line = input("New Line: -, a000000, g00, b00, #\n")
-        writeCsv(line)
+        writeTxt(line, quarterStart)
         line = list(line)
-
         side = 's'  # default self
 
         if line[0] == '#':  # opponent marking
@@ -53,32 +39,38 @@ def main():
 
         if line[0] == 'a':  # score
             print("SCORED")
-            line.pop(0)
-            player0 = line[0] + line[1]
-            player0name = playerName(player0)
-            print(player0name + " scored.")
-        elif line[0] == 'p':  # FO
+        elif line[0] == 'f':  # FO
             print("FACE-OFF WON")
-            line.pop(0)
-            player0 = line[0] + line[1]
-            player0name = playerName(player0)
-            print(player0name + " won face-off.")
         elif line[0] == 'b':  # ground ball
             print("GROUND BALL")
-            line.pop(0)
-            player0 = line[0] + line[1]
-            player0name = playerName(player0)
-            print(player0name + " picked up a ground ball.")
+        elif line[0] == 't':
+            print("TAKEOVER")
+        elif line[0] == 'p':
+            print("PENALTY")
         elif line[0] == 'g':  # goalie save
             print("GOALIE SAVED")
-            line.pop(0)
-            player0 = line[0] + line[1]
-            player0name = playerName(player0)
-            print(player0name + " saved a ball.")
-        elif line[0] == '-':
+        elif line[0] == '+':
             print("NEW QUARTER")
-            newQuarter()
-            # if end quarter mark is needed?
+            quarterStart = time.strftime('%H%M%S', time.localtime(time.time()))
+        elif line[0] == '-':
+            print("END QUARTER")
+        elif line[0] == '/':
+            print("TIME OUT")
+            # TODO Time Out Function
+        elif line[0] == 'i':  # initializing
+            writeTxt("\n\n\ni NEW GAME HEADING i", quarterStart)
+            home = input("Home Team?\n")
+            writeTxt(("i" + home), quarterStart)
+            coach = input("Home Coach?\n")
+            writeTxt(("i" + coach), quarterStart)
+            rec = input("Home Record? (Format:W-L-T)\n")
+            writeTxt(("i" + rec), quarterStart)
+            visitor = input("Visitor Team?\n")
+            writeTxt(("i" + visitor), quarterStart)
+            coach = input("Visitor Coach?\n")
+            writeTxt(("i" + coach), quarterStart)
+            rec = input("Visitor Record? (Format:W-L-T)\n")
+            writeTxt(("i" + rec), quarterStart)
         elif line[0] == 'q':
             sys.exit(0)
 
