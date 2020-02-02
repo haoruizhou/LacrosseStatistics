@@ -1,4 +1,6 @@
-import pandas as pd
+import openpyxl
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 import numpy as np
 
 # TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
@@ -11,44 +13,44 @@ headingResult = np.empty([10, 3], 'U50')
 # note: https://stackoverflow.com/questions/55377213/numpy-taking-only-first-character-of-string
 # type str only takes the first character of string
 # use U + length instead
-selfScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
-opponentScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
+homeScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
+visitorScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 # expected structure: [Main, Assist1, Assist2, Time Happened, Quarter T+]
-selfSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
-opponentSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+homeSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+visitorSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Goalie, Time Happened, Quarter T+]
-selfGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
-opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+homeGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+visitorGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Who Picked-up, Time Happened, Quarter T+]
-selfTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
-opponentTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+homeTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+visitorTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
-selfPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
-opponentPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
+homePenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
+visitorPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
 headingList = []  # storing info about game heading
-selfList = []  # storing info about your team
-opponentList = []  # storing info about the opponent team
-selfScoreList = []
-opponentScoreList = []
-selfSaveList = []
-opponentSaveList = []
-selfGroundballList = []
-opponentGroundballList = []
-selfTurnoverList = []
-opponentTurnoverList = []
-selfPenaltyList = []
-opponentPenaltyList = []
+homeList = []  # storing info about your team
+visitorList = []  # storing info about the visitor team
+homeScoreList = []
+visitorScoreList = []
+homeSaveList = []
+visitorSaveList = []
+homeGroundballList = []
+visitorGroundballList = []
+homeTurnoverList = []
+visitorTurnoverList = []
+homePenaltyList = []
+visitorPenaltyList = []
 
 with open('record.txt') as f:
     lines = [line.rstrip() for line in f]  # storing everything
 f.close()
 
-for self in lines:
-    if self[0] != '#' and self[0] != '*':
-        selfList.append(self)
-    elif self[0] != '*':
-        opponentList.append(self.replace('#', ''))
+for home in lines:
+    if home[0] != '#' and home[0] != '*':
+        homeList.append(home)
+    elif home[0] != '*':
+        visitorList.append(home.replace('#', ''))
 
 
 def get_heading():
@@ -76,26 +78,26 @@ def get_heading():
         headingResult[x][2] = split[2]
 
 
-def get_self_score():
-    linesLen = len(selfList)
+def get_home_score():
+    linesLen = len(homeList)
     i = 0
     for x in range(linesLen):
-        current = selfList[i]
+        current = homeList[i]
         try:
             if current[0] == 'a':
-                removed = selfList.pop(i)
+                removed = homeList.pop(i)
                 removed = removed[1:]
-                selfScoreList.append(removed)
+                homeScoreList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(selfScoreList)
+    # print(homeScoreList)
     # i, x = 0, 0  # reset var i, x
 
-    for x in range(len(selfScoreList)):
+    for x in range(len(homeScoreList)):
         numbers = []
-        split = selfScoreList[x].split(',')
+        split = homeScoreList[x].split(',')
 
         while (len(split[0]) <= 6):
             split[0] = str(split[0]) + "xx"
@@ -103,33 +105,33 @@ def get_self_score():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
 
-        selfScoreResult[x][0] = str(numbers[0]) + str(numbers[1])
-        selfScoreResult[x][1] = str(numbers[2]) + str(numbers[3])
-        selfScoreResult[x][2] = str(numbers[4]) + str(numbers[5])
-        selfScoreResult[x][3] = split[1]
-        selfScoreResult[x][4] = split[2]
+        homeScoreResult[x][0] = str(numbers[0]) + str(numbers[1])
+        homeScoreResult[x][1] = str(numbers[2]) + str(numbers[3])
+        homeScoreResult[x][2] = str(numbers[4]) + str(numbers[5])
+        homeScoreResult[x][3] = split[1]
+        homeScoreResult[x][4] = split[2]
 
 
-def get_opponent_score():
-    linesLen = len(opponentList)
+def get_visitor_score():
+    linesLen = len(visitorList)
     i = 0
     for x in range(linesLen):
-        current = opponentList[i]
+        current = visitorList[i]
         try:
             if current[0] == 'a':
-                removed = opponentList.pop(i)
+                removed = visitorList.pop(i)
                 removed = removed[1:]
-                opponentScoreList.append(removed)
+                visitorScoreList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(opponentScoreList)
+    # print(visitorScoreList)
     # i, x = 0, 0  # reset var i, x
 
-    for x in range(len(opponentScoreList)):
+    for x in range(len(visitorScoreList)):
         numbers = []
-        split = opponentScoreList[x].split(',')
+        split = visitorScoreList[x].split(',')
 
         while len(split[0]) <= 6:
             split[0] = str(split[0]) + "xx"
@@ -137,183 +139,183 @@ def get_opponent_score():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
 
-        opponentScoreResult[x][0] = str(numbers[0]) + str(numbers[1])
-        opponentScoreResult[x][1] = str(numbers[2]) + str(numbers[3])
-        opponentScoreResult[x][2] = str(numbers[4]) + str(numbers[5])
-        opponentScoreResult[x][3] = split[1]
-        opponentScoreResult[x][4] = split[2]
+        visitorScoreResult[x][0] = str(numbers[0]) + str(numbers[1])
+        visitorScoreResult[x][1] = str(numbers[2]) + str(numbers[3])
+        visitorScoreResult[x][2] = str(numbers[4]) + str(numbers[5])
+        visitorScoreResult[x][3] = split[1]
+        visitorScoreResult[x][4] = split[2]
 
 
-def get_self_save():
-    linesLen = len(selfList)
+def get_home_save():
+    linesLen = len(homeList)
     i = 0
     for x in range(linesLen):
-        current = selfList[i]
+        current = homeList[i]
         try:
             if current[0] == 'g':
-                removed = selfList.pop(i)
+                removed = homeList.pop(i)
                 removed = removed[1:]
-                selfSaveList.append(removed)
+                homeSaveList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(selfScoreList)
+    # print(homeScoreList)
     # i, x = 0, 0  # reset var i, x
-    for x in range(len(selfSaveList)):
-        split = selfSaveList[x].split(',')
-        selfSaveResult[x][0] = split[0]
-        selfSaveResult[x][1] = split[1]
-        selfSaveResult[x][2] = split[2]
+    for x in range(len(homeSaveList)):
+        split = homeSaveList[x].split(',')
+        homeSaveResult[x][0] = split[0]
+        homeSaveResult[x][1] = split[1]
+        homeSaveResult[x][2] = split[2]
 
 
-def get_opponent_save():
-    linesLen = len(opponentList)
+def get_visitor_save():
+    linesLen = len(visitorList)
     i = 0
     for x in range(linesLen):
-        current = opponentList[i]
+        current = visitorList[i]
         try:
             if current[0] == 'g':
-                removed = opponentList.pop(i)
+                removed = visitorList.pop(i)
                 removed = removed[1:]
-                opponentSaveList.append(removed)
+                visitorSaveList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(opponentScoreList)
+    # print(visitorScoreList)
     # i, x = 0, 0  # reset var i, x
-    for x in range(len(opponentSaveList)):
-        split = opponentSaveList[x].split(',')
-        opponentSaveResult[x][0] = split[0]
-        opponentSaveResult[x][1] = split[1]
-        opponentSaveResult[x][2] = split[2]
+    for x in range(len(visitorSaveList)):
+        split = visitorSaveList[x].split(',')
+        visitorSaveResult[x][0] = split[0]
+        visitorSaveResult[x][1] = split[1]
+        visitorSaveResult[x][2] = split[2]
 
 
-def get_self_groundball():
-    linesLen = len(selfList)
+def get_home_groundball():
+    linesLen = len(homeList)
     i = 0
     for x in range(linesLen):
-        current = selfList[i]
+        current = homeList[i]
         try:
             if current[0] == 'b':
-                removed = selfList.pop(i)
+                removed = homeList.pop(i)
                 removed = removed[1:]
-                selfGroundballList.append(removed)
+                homeGroundballList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(selfScoreList)
+    # print(homeScoreList)
     # i, x = 0, 0  # reset var i, x
-    for x in range(len(selfGroundballList)):
-        split = selfGroundballList[x].split(',')
+    for x in range(len(homeGroundballList)):
+        split = homeGroundballList[x].split(',')
         if split[0] == '':
             split[0] = "xx"
-        selfGroundballResult[x][0] = split[0]
-        selfGroundballResult[x][1] = split[1]
-        selfGroundballResult[x][2] = split[2]
+        homeGroundballResult[x][0] = split[0]
+        homeGroundballResult[x][1] = split[1]
+        homeGroundballResult[x][2] = split[2]
 
 
-def get_opponent_groundball():
-    linesLen = len(opponentList)
+def get_visitor_groundball():
+    linesLen = len(visitorList)
     i = 0
     for x in range(linesLen):
-        current = opponentList[i]
+        current = visitorList[i]
         try:
             if current[0] == 'b':
-                removed = opponentList.pop(i)
+                removed = visitorList.pop(i)
                 removed = removed[1:]
-                opponentGroundballList.append(removed)
+                visitorGroundballList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(opponentScoreList)
+    # print(visitorScoreList)
     # i, x = 0, 0  # reset var i, x
-    for x in range(len(opponentGroundballList)):
-        split = opponentGroundballList[x].split(',')
+    for x in range(len(visitorGroundballList)):
+        split = visitorGroundballList[x].split(',')
         if split[0] == '':
             split[0] = "xx"
-        opponentGroundballResult[x][0] = split[0]
-        opponentGroundballResult[x][1] = split[1]
-        opponentGroundballResult[x][2] = split[2]
+        visitorGroundballResult[x][0] = split[0]
+        visitorGroundballResult[x][1] = split[1]
+        visitorGroundballResult[x][2] = split[2]
 
 
-def get_self_penalty():
-    linesLen = len(selfList)
+def get_home_penalty():
+    linesLen = len(homeList)
     i = 0
     for x in range(linesLen):
-        current = selfList[i]
+        current = homeList[i]
         try:
             if current[0] == 'p':
-                removed = selfList.pop(i)
+                removed = homeList.pop(i)
                 removed = removed[1:]
-                selfPenaltyList.append(removed)
+                homePenaltyList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(selfScoreList)
+    # print(homeScoreList)
     # i, x = 0, 0  # reset var i, x
     # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
     # input: p02t2
-    for x in range(len(selfPenaltyList)):
-        split = selfPenaltyList[x].split(',')
-        selfPenaltyResult[x][0] = split[0][0] + split[0][1]
-        selfPenaltyResult[x][1] = split[0][2]
-        selfPenaltyResult[x][2] = split[0][3]
-        selfPenaltyResult[x][3] = split[1]
-        selfPenaltyResult[x][4] = split[2]
+    for x in range(len(homePenaltyList)):
+        split = homePenaltyList[x].split(',')
+        homePenaltyResult[x][0] = split[0][0] + split[0][1]
+        homePenaltyResult[x][1] = split[0][2]
+        homePenaltyResult[x][2] = split[0][3]
+        homePenaltyResult[x][3] = split[1]
+        homePenaltyResult[x][4] = split[2]
 
 
-def get_opponent_penalty():
-    linesLen = len(opponentList)
+def get_visitor_penalty():
+    linesLen = len(visitorList)
     i = 0
     for x in range(linesLen):
-        current = opponentList[i]
+        current = visitorList[i]
         try:
             if current[0] == 'p':
-                removed = opponentList.pop(i)
+                removed = visitorList.pop(i)
                 removed = removed[1:]
-                opponentPenaltyList.append(removed)
+                visitorPenaltyList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(opponentScoreList)
+    # print(visitorScoreList)
     # i, x = 0, 0  # reset var i, x
     # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
     # input: p02t2
-    for x in range(len(opponentPenaltyList)):
-        split = opponentPenaltyList[x].split(',')
-        opponentPenaltyResult[x][0] = split[0][0] + split[0][1]
-        opponentPenaltyResult[x][1] = split[0][2]
-        opponentPenaltyResult[x][2] = split[0][3]
-        opponentPenaltyResult[x][3] = split[1]
-        opponentPenaltyResult[x][4] = split[2]
-        
+    for x in range(len(visitorPenaltyList)):
+        split = visitorPenaltyList[x].split(',')
+        visitorPenaltyResult[x][0] = split[0][0] + split[0][1]
+        visitorPenaltyResult[x][1] = split[0][2]
+        visitorPenaltyResult[x][2] = split[0][3]
+        visitorPenaltyResult[x][3] = split[1]
+        visitorPenaltyResult[x][4] = split[2]
 
-def get_self_turnover():
-    linesLen = len(selfList)
+
+def get_home_turnover():
+    linesLen = len(homeList)
     i = 0
     for x in range(linesLen):
-        current = selfList[i]
+        current = homeList[i]
         try:
             if current[0] == 't':
-                removed = selfList.pop(i)
+                removed = homeList.pop(i)
                 removed = removed[1:]
-                selfTurnoverList.append(removed)
+                homeTurnoverList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(selfTurnoverList)
+    # print(homeTurnoverList)
     # i, x = 0, 0  # reset var i, x
 
-    for x in range(len(selfTurnoverList)):
+    for x in range(len(homeTurnoverList)):
         numbers = []
-        split = selfTurnoverList[x].split(',')
+        split = homeTurnoverList[x].split(',')
 
         while (len(split[0]) <= 4):
             split[0] = str(split[0]) + "xx"
@@ -321,32 +323,32 @@ def get_self_turnover():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
         # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
-        selfTurnoverResult[x][0] = str(numbers[0]) + str(numbers[1])
-        selfTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
-        selfTurnoverResult[x][2] = split[1]
-        selfTurnoverResult[x][3] = split[2]
+        homeTurnoverResult[x][0] = str(numbers[0]) + str(numbers[1])
+        homeTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
+        homeTurnoverResult[x][2] = split[1]
+        homeTurnoverResult[x][3] = split[2]
 
 
-def get_opponent_turnover():
-    linesLen = len(opponentList)
+def get_visitor_turnover():
+    linesLen = len(visitorList)
     i = 0
     for x in range(linesLen):
-        current = opponentList[i]
+        current = visitorList[i]
         try:
             if current[0] == 't':
-                removed = opponentList.pop(i)
+                removed = visitorList.pop(i)
                 removed = removed[1:]
-                opponentTurnoverList.append(removed)
+                visitorTurnoverList.append(removed)
                 i -= 1
         except IndexError:
             print("Current line is blank")
         i += 1
-    # print(opponentTurnoverList)
+    # print(visitorTurnoverList)
     # i, x = 0, 0  # reset var i, x
 
-    for x in range(len(opponentTurnoverList)):
+    for x in range(len(visitorTurnoverList)):
         numbers = []
-        split = opponentTurnoverList[x].split(',')
+        split = visitorTurnoverList[x].split(',')
 
         while (len(split[0]) <= 4):
             split[0] = str(split[0]) + "xx"
@@ -354,11 +356,12 @@ def get_opponent_turnover():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
         # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
-        opponentTurnoverResult[x][0] = str(numbers[0]) + str(numbers[1])
-        opponentTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
-        opponentTurnoverResult[x][2] = split[1]
-        opponentTurnoverResult[x][3] = split[2]
-        
+        visitorTurnoverResult[x][0] = str(numbers[0]) + str(numbers[1])
+        visitorTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
+        visitorTurnoverResult[x][2] = split[1]
+        visitorTurnoverResult[x][3] = split[2]
+
+
 # Testing Area
 
 
@@ -366,42 +369,59 @@ get_heading()
 print("HEADING")
 print(headingResult)
 
-get_self_score()
+get_home_score()
 print("SELF SCORE")
-print(selfScoreResult)
+print(homeScoreResult)
 
-get_opponent_score()
+get_visitor_score()
 print("OPPONENT SCORE")
-print(opponentScoreResult)
+print(visitorScoreResult)
 
-get_self_save()
+get_home_save()
 print("SELF SAVE")
-print(selfSaveResult)
+print(homeSaveResult)
 
-get_opponent_save()
+get_visitor_save()
 print("OPPONENT SAVE")
-print(opponentSaveResult)
+print(visitorSaveResult)
 
-get_self_groundball()
+get_home_groundball()
 print("SELF GROUNDBALL")
-print(selfGroundballResult)
+print(homeGroundballResult)
 
-get_opponent_groundball()
+get_visitor_groundball()
 print("OPPONENT GROUNDBALL")
-print(opponentGroundballResult)
+print(visitorGroundballResult)
 
-get_self_penalty()
+get_home_penalty()
 print("SELF PENALTY")
-print(selfPenaltyResult)
+print(homePenaltyResult)
 
-get_opponent_penalty()
+get_visitor_penalty()
 print("OPPONENT PENALTY")
-print(opponentPenaltyResult)
+print(visitorPenaltyResult)
 
-get_self_turnover()
+get_home_turnover()
 print("SELF TURNOVER")
-print(selfTurnoverResult)
+print(homeTurnoverResult)
 
-get_opponent_turnover()
+get_visitor_turnover()
 print("OPPONENT TURNOVER")
-print(opponentTurnoverResult)
+print(visitorTurnoverResult)
+
+# Finished putting all the data in arrays
+# Write in .xlsx
+
+wb = Workbook()
+filename = headingResult[0][0] + ' vs ' + headingResult[3][0] + '.xlsx'
+ws1 = wb.active
+ws1.title = "Scorebook"
+heading = ['Home', 'Coach', 'Record', 'Visitor', 'Coach', 'Record']
+ws1.merge_cells('A1:C1')
+ws1['A1'] = "Team Information"
+for x in range(6):
+    ws1['A' + str(x + 2)] = heading[x]
+    ws1.merge_cells('B' + str(x + 2) + ':' + 'C' + str(x + 2))
+    ws1['B' + str(x + 2)] = headingResult[x][0]
+
+wb.save(filename=filename)

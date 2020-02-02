@@ -31,11 +31,11 @@ def main():
         side = 's'  # default self
 
         if line[0] == '#':  # opponent marking
-            print("###Opponent Input###")
+            print("###VISITOR Input###")
             line.pop(0)
             side = 'o'  # opponent
         else:
-            print("---Self Input---")
+            print("---HOME Input---")
 
         if line[0] == 'a':  # score
             print("SCORED")
