@@ -58,7 +58,7 @@ def main():
             print("TIME OUT")
             # TODO Time Out Function
         elif line[0] == 'i':  # initializing
-            writeTxt("\n\n\ni NEW GAME HEADING i", quarterStart)
+            writeTxt("i NEW GAME HEADING i", quarterStart)
             home = input("Home Team?\n")
             writeTxt(("i" + home), quarterStart)
             coach = input("Home Coach?\n")
