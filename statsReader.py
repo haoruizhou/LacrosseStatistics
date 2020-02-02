@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-# TODO: Timeline?
-# TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter change
+# TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
+#  change. To double check, if time difference is bigger than 15 min, quarter change 
 
 MAX_ARRAY_ROWS = 6
 # NEVER FORGET OUR BEST PLAYER: MR. PLACEHOLDER, HIS JERSEY NUMBER IS XX
@@ -23,8 +23,8 @@ opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 selfTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 opponentTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
-selfPenaltyResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
-opponentPenaltyResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+selfPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
+opponentPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
 headingList = []  # storing info about game heading
 selfList = []  # storing info about your team
@@ -239,6 +239,126 @@ def get_opponent_groundball():
         opponentGroundballResult[x][1] = split[1]
         opponentGroundballResult[x][2] = split[2]
 
+
+def get_self_penalty():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 'p':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfPenaltyList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfScoreList)
+    # i, x = 0, 0  # reset var i, x
+    # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
+    # input: p02t2
+    for x in range(len(selfPenaltyList)):
+        split = selfPenaltyList[x].split(',')
+        selfPenaltyResult[x][0] = split[0][0] + split[0][1]
+        selfPenaltyResult[x][1] = split[0][2]
+        selfPenaltyResult[x][2] = split[0][3]
+        selfPenaltyResult[x][3] = split[1]
+        selfPenaltyResult[x][4] = split[2]
+
+
+def get_opponent_penalty():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 'p':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentPenaltyList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentScoreList)
+    # i, x = 0, 0  # reset var i, x
+    # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
+    # input: p02t2
+    for x in range(len(opponentPenaltyList)):
+        split = opponentPenaltyList[x].split(',')
+        opponentPenaltyResult[x][0] = split[0][0] + split[0][1]
+        opponentPenaltyResult[x][1] = split[0][2]
+        opponentPenaltyResult[x][2] = split[0][3]
+        opponentPenaltyResult[x][3] = split[1]
+        opponentPenaltyResult[x][4] = split[2]
+        
+
+def get_self_turnover():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 't':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfTurnoverList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfTurnoverList)
+    # i, x = 0, 0  # reset var i, x
+
+    for x in range(len(selfTurnoverList)):
+        numbers = []
+        split = selfTurnoverList[x].split(',')
+
+        while (len(split[0]) <= 4):
+            split[0] = str(split[0]) + "xx"
+
+        for i in range(len(split[0])):
+            numbers.append(split[0][i])
+        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
+        selfTurnoverResult[x][0] = str(numbers[0]) + str(numbers[1])
+        selfTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
+        selfTurnoverResult[x][2] = split[1]
+        selfTurnoverResult[x][3] = split[2]
+
+
+def get_opponent_turnover():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 't':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentTurnoverList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentTurnoverList)
+    # i, x = 0, 0  # reset var i, x
+
+    for x in range(len(opponentTurnoverList)):
+        numbers = []
+        split = opponentTurnoverList[x].split(',')
+
+        while (len(split[0]) <= 4):
+            split[0] = str(split[0]) + "xx"
+
+        for i in range(len(split[0])):
+            numbers.append(split[0][i])
+        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
+        opponentTurnoverResult[x][0] = str(numbers[0]) + str(numbers[1])
+        opponentTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
+        opponentTurnoverResult[x][2] = split[1]
+        opponentTurnoverResult[x][3] = split[2]
+        
 # Testing Area
 
 
@@ -269,3 +389,19 @@ print(selfGroundballResult)
 get_opponent_groundball()
 print("OPPONENT GROUNDBALL")
 print(opponentGroundballResult)
+
+get_self_penalty()
+print("SELF PENALTY")
+print(selfPenaltyResult)
+
+get_opponent_penalty()
+print("OPPONENT PENALTY")
+print(opponentPenaltyResult)
+
+get_self_turnover()
+print("SELF TURNOVER")
+print(selfTurnoverResult)
+
+get_opponent_turnover()
+print("OPPONENT TURNOVER")
+print(opponentTurnoverResult)
