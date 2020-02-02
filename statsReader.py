@@ -1,15 +1,25 @@
 import pandas as pd
 import numpy as np
 
-heading = np.empty([10, 3], 'U50')
+# TODO: Timeline?
+# TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter change
+
+MAX_ARRAY_ROWS = 6
+# NEVER FORGET OUR BEST PLAYER: MR. PLACEHOLDER, HIS JERSEY NUMBER IS XX
+headingResult = np.empty([10, 3], 'U50')
 # expected structure: [STRING, Time, Time]
 # note: https://stackoverflow.com/questions/55377213/numpy-taking-only-first-character-of-string
 # type str only takes the first character of string
 # use U + length instead
-selfScoreArray = np.empty([100, 5], 'U50')
+selfScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
+opponentScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 # expected structure: [Main, Assist1, Assist2, Time Happened, Quarter T+]
-opponentScoreArray = np.empty([100, 5], 'U50')
-# expected structure: [Main, Assist1, Assist2, Time Happened, Quarter T+]
+selfSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+opponentSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+# expected structure: [Goalie, Time Happened, Quarter T+]
+selfGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+# expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
 
 
 headingList = []  # storing info about game heading
@@ -17,10 +27,11 @@ selfList = []  # storing info about your team
 opponentList = []  # storing info about the opponent team
 selfScoreList = []
 opponentScoreList = []
+selfSaveList = []
+opponentSaveList = []
 
 with open('record.txt') as f:
     lines = [line.rstrip() for line in f]  # storing everything
-    print(lines)
 f.close()
 
 for self in lines:
@@ -28,9 +39,6 @@ for self in lines:
         selfList.append(self)
     elif self[0] != '*':
         opponentList.append(self.replace('#', ''))
-
-print(selfList)
-print(opponentList)
 
 
 def get_heading():
@@ -45,21 +53,17 @@ def get_heading():
                 headingList.append(removed)
                 i -= 1
         except IndexError:
-            print("current line is blank")
+            print("Current line is blank")
         i += 1
     headingList.pop(0)
     headingList.pop(0)
-    print(headingList)
     # i, x = 0, 0  # reset var i, x
 
     for x in range(len(headingList)):
         split = headingList[x].split(',')
-        print(split)
-        heading[x][0] = split[0]
-        heading[x][1] = split[1]
-        heading[x][2] = split[2]
-
-    print(heading)
+        headingResult[x][0] = split[0]
+        headingResult[x][1] = split[1]
+        headingResult[x][2] = split[2]
 
 
 def get_self_score():
@@ -74,7 +78,7 @@ def get_self_score():
                 selfScoreList.append(removed)
                 i -= 1
         except IndexError:
-            print("current line is blank")
+            print("Current line is blank")
         i += 1
     # print(selfScoreList)
     # i, x = 0, 0  # reset var i, x
@@ -89,13 +93,11 @@ def get_self_score():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
 
-        selfScoreArray[x][0] = str(numbers[0]) + str(numbers[1])
-        selfScoreArray[x][1] = str(numbers[2]) + str(numbers[3])
-        selfScoreArray[x][2] = str(numbers[4]) + str(numbers[5])
-        selfScoreArray[x][3] = split[1]
-        selfScoreArray[x][4] = split[2]
-
-    print(selfScoreArray)
+        selfScoreResult[x][0] = str(numbers[0]) + str(numbers[1])
+        selfScoreResult[x][1] = str(numbers[2]) + str(numbers[3])
+        selfScoreResult[x][2] = str(numbers[4]) + str(numbers[5])
+        selfScoreResult[x][3] = split[1]
+        selfScoreResult[x][4] = split[2]
 
 
 def get_opponent_score():
@@ -110,7 +112,7 @@ def get_opponent_score():
                 opponentScoreList.append(removed)
                 i -= 1
         except IndexError:
-            print("current line is blank")
+            print("Current line is blank")
         i += 1
     # print(opponentScoreList)
     # i, x = 0, 0  # reset var i, x
@@ -125,15 +127,73 @@ def get_opponent_score():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
 
-        opponentScoreArray[x][0] = str(numbers[0]) + str(numbers[1])
-        opponentScoreArray[x][1] = str(numbers[2]) + str(numbers[3])
-        opponentScoreArray[x][2] = str(numbers[4]) + str(numbers[5])
-        opponentScoreArray[x][3] = split[1]
-        opponentScoreArray[x][4] = split[2]
-
-    print(opponentScoreArray)
+        opponentScoreResult[x][0] = str(numbers[0]) + str(numbers[1])
+        opponentScoreResult[x][1] = str(numbers[2]) + str(numbers[3])
+        opponentScoreResult[x][2] = str(numbers[4]) + str(numbers[5])
+        opponentScoreResult[x][3] = split[1]
+        opponentScoreResult[x][4] = split[2]
 
 
-# get_heading()
+def get_self_save():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 'g':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfSaveList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfScoreList)
+    # i, x = 0, 0  # reset var i, x
+    for x in range(len(selfSaveList)):
+        split = selfSaveList[x].split(',')
+        selfSaveResult[x][0] = split[0]
+        selfSaveResult[x][1] = split[1]
+        selfSaveResult[x][2] = split[2]
+
+
+def get_opponent_save():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 'g':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentSaveList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentScoreList)
+    # i, x = 0, 0  # reset var i, x
+    for x in range(len(opponentSaveList)):
+        split = opponentSaveList[x].split(',')
+        opponentSaveResult[x][0] = split[0]
+        opponentSaveResult[x][1] = split[1]
+        opponentSaveResult[x][2] = split[2]
+
+
+# Testing Area
+
+get_heading()
+print("HEADING")
+print(headingResult)
 get_self_score()
+print(selfScoreResult)
+print("SELF SCORE")
 get_opponent_score()
+print(opponentScoreResult)
+print("OPPONENT SCORE")
+get_self_save()
+print(selfSaveResult)
+print("SELF SAVE")
+get_opponent_save()
+print(opponentSaveResult)
+print("OPPONENT SAVE")
