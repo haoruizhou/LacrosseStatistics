@@ -1,12 +1,13 @@
 import openpyxl
 from openpyxl import Workbook
+from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 import numpy as np
 
 # TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
 #  change. To double check, if time difference is bigger than 15 min, quarter change 
 
-MAX_ARRAY_ROWS = 6
+MAX_ARRAY_ROWS = 10
 # NEVER FORGET OUR BEST PLAYER: MR. PLACEHOLDER, HIS JERSEY NUMBER IS XX
 headingResult = np.empty([10, 3], 'U50')
 # expected structure: [STRING, Time, Time]
@@ -25,6 +26,9 @@ opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 selfTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 opponentTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
+selfFaceoffResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+opponentFaceoffResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+# expected structure：[Who Won, Who Lost, Time Happened, Quarter T+]
 selfPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 opponentPenaltyResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 # expected structure: [Main, Type, Length, Time Happened, Quarter T+]
@@ -41,6 +45,8 @@ selfTurnoverList = []
 opponentTurnoverList = []
 selfPenaltyList = []
 opponentPenaltyList = []
+selfFaceoffList = []
+opponentFaceoffList = []
 
 with open('record.txt') as f:
     lines = [line.rstrip() for line in f]  # storing everything
@@ -242,6 +248,55 @@ def get_opponent_groundball():
         opponentGroundballResult[x][2] = split[2]
 
 
+        def get_self_groundball():
+            linesLen = len(selfList)
+            i = 0
+            for x in range(linesLen):
+                current = selfList[i]
+                try:
+                    if current[0] == 'b':
+                        removed = selfList.pop(i)
+                        removed = removed[1:]
+                        selfGroundballList.append(removed)
+                        i -= 1
+                except IndexError:
+                    print("Current line is blank")
+                i += 1
+            # print(selfScoreList)
+            # i, x = 0, 0  # reset var i, x
+            for x in range(len(selfGroundballList)):
+                split = selfGroundballList[x].split(',')
+                if split[0] == '':
+                    split[0] = "xx"
+                selfGroundballResult[x][0] = split[0]
+                selfGroundballResult[x][1] = split[1]
+                selfGroundballResult[x][2] = split[2]
+
+        def get_opponent_groundball():
+            linesLen = len(opponentList)
+            i = 0
+            for x in range(linesLen):
+                current = opponentList[i]
+                try:
+                    if current[0] == 'b':
+                        removed = opponentList.pop(i)
+                        removed = removed[1:]
+                        opponentGroundballList.append(removed)
+                        i -= 1
+                except IndexError:
+                    print("Current line is blank")
+                i += 1
+            # print(opponentScoreList)
+            # i, x = 0, 0  # reset var i, x
+            for x in range(len(opponentGroundballList)):
+                split = opponentGroundballList[x].split(',')
+                if split[0] == '':
+                    split[0] = "xx"
+                opponentGroundballResult[x][0] = split[0]
+                opponentGroundballResult[x][1] = split[1]
+                opponentGroundballResult[x][2] = split[2]
+
+
 def get_self_penalty():
     linesLen = len(selfList)
     i = 0
@@ -360,6 +415,72 @@ def get_opponent_turnover():
         opponentTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
         opponentTurnoverResult[x][2] = split[1]
         opponentTurnoverResult[x][3] = split[2]
+        
+
+def get_self_faceoff():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 'f':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfFaceoffList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfFaceoffList)
+    # i, x = 0, 0  # reset var i, x
+
+    for x in range(len(selfFaceoffList)):
+        numbers = []
+        split = selfFaceoffList[x].split(',')
+
+        while (len(split[0]) <= 4):
+            split[0] = str(split[0]) + "xx"
+
+        for i in range(len(split[0])):
+            numbers.append(split[0][i])
+        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
+        selfFaceoffResult[x][0] = str(numbers[0]) + str(numbers[1])
+        selfFaceoffResult[x][1] = str(numbers[2]) + str(numbers[3])
+        selfFaceoffResult[x][2] = split[1]
+        selfFaceoffResult[x][3] = split[2]
+
+
+def get_opponent_faceoff():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 'f':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentFaceoffList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentFaceoffList)
+    # i, x = 0, 0  # reset var i, x
+
+    for x in range(len(opponentFaceoffList)):
+        numbers = []
+        split = opponentFaceoffList[x].split(',')
+
+        while (len(split[0]) <= 4):
+            split[0] = str(split[0]) + "xx"
+
+        for i in range(len(split[0])):
+            numbers.append(split[0][i])
+        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
+        opponentFaceoffResult[x][0] = str(numbers[0]) + str(numbers[1])
+        opponentFaceoffResult[x][1] = str(numbers[2]) + str(numbers[3])
+        opponentFaceoffResult[x][2] = split[1]
+        opponentFaceoffResult[x][3] = split[2]
 
 
 # Testing Area
@@ -409,6 +530,14 @@ get_opponent_turnover()
 print("OPPONENT TURNOVER")
 print(opponentTurnoverResult)
 
+get_self_faceoff()
+print("SELF FACEOFF")
+print(selfFaceoffResult)
+
+get_opponent_faceoff()
+print("OPPONENT FACEOFF")
+print(opponentFaceoffResult)
+
 # Finished putting all the data in arrays
 # Write in .xlsx
 
@@ -423,5 +552,21 @@ for x in range(6):
     ws1['A' + str(x + 2)] = heading[x]
     ws1.merge_cells('B' + str(x + 2) + ':' + 'C' + str(x + 2))
     ws1['B' + str(x + 2)] = headingResult[x][0]
+
+ws1.merge_cells('A10:L10')
+ws1['A10'] = ('TEAM: ' + headingResult[0][0])
+ws1['A10'].alignment = Alignment(horizontal='center')
+ws1['A11'] = 'PO'
+ws1['B11'] = 'NO'
+ws1['C11'] = 'NAME'
+ws1['G11'] = 'SHOT'
+ws1['H11'] = 'GOAL'
+ws1['I11'] = 'ASSIST'
+ws1['J11'] = 'GB'
+ws1['K11'] = 'TO'
+ws1['L11'] = 'P'
+
+for x in range(MAX_ARRAY_ROWS):
+    ws1.merge_cells('C' + str(x + 11) + ':' + 'F' + str(x + 11))
 
 wb.save(filename=filename)
