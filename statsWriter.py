@@ -12,7 +12,7 @@ visitorPlayers = np.array([[]])
 # player2 = assist2
 
 
-def writeTxt(content, quarterStart):
+def write_txt(content, quarterStart):
     current = time.strftime('%H%M%S', time.localtime(time.time()))
     diff = int(current) - int(quarterStart)
     file = open("record.txt", "a")
@@ -26,7 +26,7 @@ def main():
     quarterStart = 0
     while True:
         line = input("New Line: -, a000000, g00, b00, #\n")
-        writeTxt(line, quarterStart)
+        write_txt(line, quarterStart)
         line = list(line)
         side = 's'  # default self
 
@@ -58,19 +58,19 @@ def main():
             print("TIME OUT")
             # TODO Time Out Function
         elif line[0] == 'i':  # initializing
-            writeTxt("i NEW GAME HEADING i", quarterStart)
+            write_txt("i NEW GAME HEADING i", quarterStart)
             home = input("Home Team?\n")
-            writeTxt(("i" + home), quarterStart)
+            write_txt(("i" + home), quarterStart)
             coach = input("Home Coach?\n")
-            writeTxt(("i" + coach), quarterStart)
+            write_txt(("i" + coach), quarterStart)
             rec = input("Home Record? (Format:W-L-T)\n")
-            writeTxt(("i" + rec), quarterStart)
+            write_txt(("i" + rec), quarterStart)
             visitor = input("Visitor Team?\n")
-            writeTxt(("i" + visitor), quarterStart)
+            write_txt(("i" + visitor), quarterStart)
             coach = input("Visitor Coach?\n")
-            writeTxt(("i" + coach), quarterStart)
+            write_txt(("i" + coach), quarterStart)
             rec = input("Visitor Record? (Format:W-L-T)\n")
-            writeTxt(("i" + rec), quarterStart)
+            write_txt(("i" + rec), quarterStart)
         elif line[0] == 'q':
             sys.exit(0)
 
