@@ -31,11 +31,11 @@ def main():
         side = 's'  # default self
 
         if line[0] == '#':  # opponent marking
-            print("###VISITOR Input###")
+            print("###OPPONENT Input###")
             line.pop(0)
             side = 'o'  # opponent
         else:
-            print("---HOME Input---")
+            print("---SELF Input---")
 
         if line[0] == 'a':  # score
             print("SCORED")
@@ -64,17 +64,17 @@ def main():
             # TODO Time Out Function
         elif line[0] == 'i':  # initializing
             write_txt("i NEW GAME HEADING i", quarterStart)
-            home = input("Home Team?\n")
+            home = input("Self Team?\n")
             write_txt(("i" + home), quarterStart)
-            coach = input("Home Coach?\n")
+            coach = input("Self Coach?\n")
             write_txt(("i" + coach), quarterStart)
-            rec = input("Home Record? (Format:W-L-T)\n")
+            rec = input("Self Record? (Format:W-L-T)\n")
             write_txt(("i" + rec), quarterStart)
-            visitor = input("Visitor Team?\n")
+            visitor = input("Opponent Team?\n")
             write_txt(("i" + visitor), quarterStart)
-            coach = input("Visitor Coach?\n")
+            coach = input("Opponent Coach?\n")
             write_txt(("i" + coach), quarterStart)
-            rec = input("Visitor Record? (Format:W-L-T)\n")
+            rec = input("Opponent Record? (Format:W-L-T)\n")
             write_txt(("i" + rec), quarterStart)
         elif line[0] == 'r':
             print("ROSTER")
