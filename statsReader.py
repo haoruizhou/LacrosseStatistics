@@ -6,9 +6,9 @@ heading = np.empty([10, 3], 'U50')
 # note: https://stackoverflow.com/questions/55377213/numpy-taking-only-first-character-of-string
 # type str only takes the first character of string
 # use U + length instead
-selfScore = np.empty([100, 5], 'U50')
+selfScoreArray = np.empty([100, 5], 'U50')
 # expected structure: [Main, Assist1, Assist2, Time Happened, Quarter T+]
-opponentScore = np.empty([100, 5], 'U50')
+opponentScoreArray = np.empty([100, 5], 'U50')
 # expected structure: [Main, Assist1, Assist2, Time Happened, Quarter T+]
 
 
@@ -89,13 +89,13 @@ def get_self_score():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
 
-        selfScore[x][0] = str(numbers[0]) + str(numbers[1])
-        selfScore[x][1] = str(numbers[2]) + str(numbers[3])
-        selfScore[x][2] = str(numbers[4]) + str(numbers[5])
-        selfScore[x][3] = split[1]
-        selfScore[x][4] = split[2]
+        selfScoreArray[x][0] = str(numbers[0]) + str(numbers[1])
+        selfScoreArray[x][1] = str(numbers[2]) + str(numbers[3])
+        selfScoreArray[x][2] = str(numbers[4]) + str(numbers[5])
+        selfScoreArray[x][3] = split[1]
+        selfScoreArray[x][4] = split[2]
 
-    print(selfScore)
+    print(selfScoreArray)
 
 
 def get_opponent_score():
@@ -125,13 +125,13 @@ def get_opponent_score():
         for i in range(len(split[0])):
             numbers.append(split[0][i])
 
-        opponentScore[x][0] = str(numbers[0]) + str(numbers[1])
-        opponentScore[x][1] = str(numbers[2]) + str(numbers[3])
-        opponentScore[x][2] = str(numbers[4]) + str(numbers[5])
-        opponentScore[x][3] = split[1]
-        opponentScore[x][4] = split[2]
+        opponentScoreArray[x][0] = str(numbers[0]) + str(numbers[1])
+        opponentScoreArray[x][1] = str(numbers[2]) + str(numbers[3])
+        opponentScoreArray[x][2] = str(numbers[4]) + str(numbers[5])
+        opponentScoreArray[x][3] = split[1]
+        opponentScoreArray[x][4] = split[2]
 
-    print(opponentScore)
+    print(opponentScoreArray)
 
 
 # get_heading()
