@@ -19,9 +19,13 @@ opponentSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Goalie, Time Happened, Quarter T+]
 selfGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+# expected structure: [Who Picked-up, Time Happened, Quarter T+]
+selfTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+opponentTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
-
-
+selfPenaltyResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+opponentPenaltyResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
+# expected structure: [Main, Type, Length, Time Happened, Quarter T+]
 headingList = []  # storing info about game heading
 selfList = []  # storing info about your team
 opponentList = []  # storing info about the opponent team
@@ -29,6 +33,12 @@ selfScoreList = []
 opponentScoreList = []
 selfSaveList = []
 opponentSaveList = []
+selfGroundballList = []
+opponentGroundballList = []
+selfTurnoverList = []
+opponentTurnoverList = []
+selfPenaltyList = []
+opponentPenaltyList = []
 
 with open('record.txt') as f:
     lines = [line.rstrip() for line in f]  # storing everything
@@ -180,20 +190,82 @@ def get_opponent_save():
         opponentSaveResult[x][2] = split[2]
 
 
+def get_self_groundball():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 'b':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfGroundballList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfScoreList)
+    # i, x = 0, 0  # reset var i, x
+    for x in range(len(selfGroundballList)):
+        split = selfGroundballList[x].split(',')
+        if split[0] == '':
+            split[0] = "xx"
+        selfGroundballResult[x][0] = split[0]
+        selfGroundballResult[x][1] = split[1]
+        selfGroundballResult[x][2] = split[2]
+
+
+def get_opponent_groundball():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 'b':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentGroundballList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentScoreList)
+    # i, x = 0, 0  # reset var i, x
+    for x in range(len(opponentGroundballList)):
+        split = opponentGroundballList[x].split(',')
+        if split[0] == '':
+            split[0] = "xx"
+        opponentGroundballResult[x][0] = split[0]
+        opponentGroundballResult[x][1] = split[1]
+        opponentGroundballResult[x][2] = split[2]
+
 # Testing Area
+
 
 get_heading()
 print("HEADING")
 print(headingResult)
+
 get_self_score()
-print(selfScoreResult)
 print("SELF SCORE")
+print(selfScoreResult)
+
 get_opponent_score()
-print(opponentScoreResult)
 print("OPPONENT SCORE")
+print(opponentScoreResult)
+
 get_self_save()
-print(selfSaveResult)
 print("SELF SAVE")
+print(selfSaveResult)
+
 get_opponent_save()
-print(opponentSaveResult)
 print("OPPONENT SAVE")
+print(opponentSaveResult)
+
+get_self_groundball()
+print("SELF GROUNDBALL")
+print(selfGroundballResult)
+
+get_opponent_groundball()
+print("OPPONENT GROUNDBALL")
+print(opponentGroundballResult)
