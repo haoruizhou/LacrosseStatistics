@@ -71,6 +71,8 @@ def main():
             write_txt(("i" + coach), quarterStart)
             rec = input("Visitor Record? (Format:W-L-T)\n")
             write_txt(("i" + rec), quarterStart)
+        elif line[0] == 'r':
+            print("ROSTER")
         elif line[0] == 'q':
             sys.exit(0)
 
