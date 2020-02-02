@@ -3,6 +3,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 import numpy as np
+import csv
+import os
 
 # TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
 #  change. To double check, if time difference is bigger than 15 min, quarter change 
@@ -540,6 +542,12 @@ print(opponentFaceoffResult)
 
 # Finished putting all the data in arrays
 # Write in .xlsx
+data_path = 'selfPlayer.csv'
+with open(data_path) as f:
+    reader = csv.reader(f, delimiter=',')
+    selfPlayers = np.array(list(reader)).astype('U50')
+
+print(selfPlayers)
 
 wb = Workbook()
 filename = headingResult[0][0] + ' vs ' + headingResult[3][0] + '.xlsx'
@@ -567,6 +575,7 @@ ws1['K11'] = 'TO'
 ws1['L11'] = 'P'
 
 for x in range(MAX_ARRAY_ROWS):
-    ws1.merge_cells('C' + str(x + 11) + ':' + 'F' + str(x + 11))
+    ws1.merge_cells('C' + str(x + 12) + ':' + 'F' + str(x + 12))
 
 wb.save(filename=filename)
+os.startfile(filename, 'open')
