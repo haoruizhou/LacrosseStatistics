@@ -1,6 +1,6 @@
 import openpyxl
 from openpyxl import Workbook
-from openpyxl.styles import Alignment
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font, colors
 from openpyxl.utils import get_column_letter
 import numpy as np
 import csv
@@ -10,6 +10,7 @@ import os
 #  change. To double check, if time difference is bigger than 15 min, quarter change 
 
 MAX_ARRAY_ROWS = 10
+
 # NEVER FORGET OUR BEST PLAYER: MR. PLACEHOLDER, HIS JERSEY NUMBER IS XX
 headingResult = np.empty([10, 3], 'U50')
 # expected structure: [STRING, Time, Time]
@@ -249,7 +250,6 @@ def get_opponent_groundball():
         opponentGroundballResult[x][1] = split[1]
         opponentGroundballResult[x][2] = split[2]
 
-
         def get_self_groundball():
             linesLen = len(selfList)
             i = 0
@@ -417,7 +417,7 @@ def get_opponent_turnover():
         opponentTurnoverResult[x][1] = str(numbers[2]) + str(numbers[3])
         opponentTurnoverResult[x][2] = split[1]
         opponentTurnoverResult[x][3] = split[2]
-        
+
 
 def get_self_faceoff():
     linesLen = len(selfList)
@@ -542,10 +542,22 @@ print(opponentFaceoffResult)
 
 # Finished putting all the data in arrays
 # Write in .xlsx
+# goalieFill = PatternFill(patternType='solid', fill_type='solid', bgColor=colors.RED)
+#  = PatternFill(start_color='FFCCFFFF', end_color=
+titleFill = PatternFill("solid", fgColor="FFA500")
+goalieFill = PatternFill("solid", fgColor="DDDDDD")
+offenseFill = PatternFill("solid", fgColor="DDDDDD")
+midiFill = PatternFill("solid", fgColor="E0FFFF")
+defenseFill = PatternFill("solid", fgColor="F08080")
+foFill = PatternFill("solid", fgColor="DDDDDD")
+
 data_path = 'selfPlayer.csv'
 with open(data_path) as f:
     reader = csv.reader(f, delimiter=',')
     selfPlayers = np.array(list(reader)).astype('U50')
+
+if len(selfPlayers) > MAX_ARRAY_ROWS:
+    MAX_ARRAY_ROWS = len(selfPlayers) + 2
 
 print(selfPlayers)
 
@@ -556,26 +568,64 @@ ws1.title = "Scorebook"
 heading = ['Self', 'Coach', 'Record', 'Opponent', 'Coach', 'Record']
 ws1.merge_cells('A1:C1')
 ws1['A1'] = "Team Information"
+ws1['A1'].fill = titleFill
 for x in range(6):
     ws1['A' + str(x + 2)] = heading[x]
+    ws1['A' + str(x + 2)].fill = titleFill
     ws1.merge_cells('B' + str(x + 2) + ':' + 'C' + str(x + 2))
     ws1['B' + str(x + 2)] = headingResult[x][0]
 
-ws1.merge_cells('A10:L10')
+ws1.merge_cells('A10:P10')
 ws1['A10'] = ('TEAM: ' + headingResult[0][0])
 ws1['A10'].alignment = Alignment(horizontal='center')
-ws1['A11'] = 'PO'
+ws1['A11'] = 'POS'
+ws1['A11'].fill = titleFill
 ws1['B11'] = 'NO'
+ws1['B11'].fill = titleFill
 ws1['C11'] = 'NAME'
+ws1['C11'].fill = titleFill
 ws1['G11'] = 'SHOT'
+ws1['G11'].fill = titleFill
 ws1['H11'] = 'GOAL'
+ws1['H11'].fill = titleFill
 ws1['I11'] = 'ASSIST'
-ws1['J11'] = 'GB'
-ws1['K11'] = 'TO'
-ws1['L11'] = 'P'
-
+ws1['I11'].fill = titleFill
+ws1['J11'] = 'GRBAL'
+ws1['J11'].fill = titleFill
+ws1['K11'] = 'TURNOV'
+ws1['K11'].fill = titleFill
+ws1['L11'] = 'PENAL'
+ws1['L11'].fill = titleFill
+ws1['M11'] = 'GOSAV'
+ws1['M11'].fill = titleFill
+ws1['N11'] = 'GOMIS'
+ws1['N11'].fill = titleFill
+ws1['O11'] = 'FOWIN'
+ws1['O11'].fill = titleFill
+ws1['P11'] = 'FOLOSE'
+ws1['P11'].fill = titleFill
+ws1.merge_cells('C11:F11')
+ws1['A10'].fill = titleFill
 for x in range(MAX_ARRAY_ROWS):
     ws1.merge_cells('C' + str(x + 12) + ':' + 'F' + str(x + 12))
+    ws1['A' + str(x + 12)] = selfPlayers[x][0]
+    if selfPlayers[x][0] == 'G':
+        for y in range(1, 17):
+            ws1.cell(row=(x+12), column=y).fill = goalieFill
+    elif selfPlayers[x][0] == 'O':
+        for y in range(1,17):
+            ws1.cell(row=(x+12), column=y).fill = offenseFill
+    elif selfPlayers[x][0] == 'M':
+        for y in range(1,17):
+            ws1.cell(row=(x+12), column=y).fill = midiFill
+    elif selfPlayers[x][0] == 'D':
+        for y in range(1,17):
+            ws1.cell(row=(x+12), column=y).fill = defenseFill
+    elif selfPlayers[x][0] == 'FM':
+        for y in range(1,17):
+            ws1.cell(row=(x+12), column=y).fill = foFill
+    ws1['B' + str(x + 12)] = selfPlayers[x][2]
+    ws1['C' + str(x + 12)] = selfPlayers[x][1]
 
 wb.save(filename=filename)
 os.startfile(filename, 'open')
