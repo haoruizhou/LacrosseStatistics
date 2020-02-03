@@ -51,6 +51,8 @@ opponentPenaltyList = []
 selfFaceoffList = []
 opponentFaceoffList = []
 
+last = 0
+
 with open('record.txt') as f:
     lines = [line.rstrip() for line in f]  # storing everything
 f.close()
@@ -250,54 +252,6 @@ def get_opponent_groundball():
         opponentGroundballResult[x][1] = split[1]
         opponentGroundballResult[x][2] = split[2]
 
-        def get_self_groundball():
-            linesLen = len(selfList)
-            i = 0
-            for x in range(linesLen):
-                current = selfList[i]
-                try:
-                    if current[0] == 'b':
-                        removed = selfList.pop(i)
-                        removed = removed[1:]
-                        selfGroundballList.append(removed)
-                        i -= 1
-                except IndexError:
-                    print("Current line is blank")
-                i += 1
-            # print(selfScoreList)
-            # i, x = 0, 0  # reset var i, x
-            for x in range(len(selfGroundballList)):
-                split = selfGroundballList[x].split(',')
-                if split[0] == '':
-                    split[0] = "xx"
-                selfGroundballResult[x][0] = split[0]
-                selfGroundballResult[x][1] = split[1]
-                selfGroundballResult[x][2] = split[2]
-
-        def get_opponent_groundball():
-            linesLen = len(opponentList)
-            i = 0
-            for x in range(linesLen):
-                current = opponentList[i]
-                try:
-                    if current[0] == 'b':
-                        removed = opponentList.pop(i)
-                        removed = removed[1:]
-                        opponentGroundballList.append(removed)
-                        i -= 1
-                except IndexError:
-                    print("Current line is blank")
-                i += 1
-            # print(opponentScoreList)
-            # i, x = 0, 0  # reset var i, x
-            for x in range(len(opponentGroundballList)):
-                split = opponentGroundballList[x].split(',')
-                if split[0] == '':
-                    split[0] = "xx"
-                opponentGroundballResult[x][0] = split[0]
-                opponentGroundballResult[x][1] = split[1]
-                opponentGroundballResult[x][2] = split[2]
-
 
 def get_self_penalty():
     linesLen = len(selfList)
@@ -374,7 +328,7 @@ def get_self_turnover():
         numbers = []
         split = selfTurnoverList[x].split(',')
 
-        while (len(split[0]) <= 4):
+        while len(split[0]) <= 4:
             split[0] = str(split[0]) + "xx"
 
         for i in range(len(split[0])):
@@ -407,7 +361,7 @@ def get_opponent_turnover():
         numbers = []
         split = opponentTurnoverList[x].split(',')
 
-        while (len(split[0]) <= 4):
+        while len(split[0]) <= 4:
             split[0] = str(split[0]) + "xx"
 
         for i in range(len(split[0])):
@@ -440,7 +394,7 @@ def get_self_faceoff():
         numbers = []
         split = selfFaceoffList[x].split(',')
 
-        while (len(split[0]) <= 4):
+        while len(split[0]) <= 4:
             split[0] = str(split[0]) + "xx"
 
         for i in range(len(split[0])):
@@ -473,7 +427,7 @@ def get_opponent_faceoff():
         numbers = []
         split = opponentFaceoffList[x].split(',')
 
-        while (len(split[0]) <= 4):
+        while len(split[0]) <= 4:
             split[0] = str(split[0]) + "xx"
 
         for i in range(len(split[0])):
@@ -606,26 +560,94 @@ ws1['P11'] = 'FOLOSE'
 ws1['P11'].fill = titleFill
 ws1.merge_cells('C11:F11')
 ws1['A10'].fill = titleFill
+
+
+def find_line(number):
+    for x in range(1, 100):
+        if ws1.cell(row=x, column=2).value == number:
+            print('LINE ' + str(x))
+            return x
+    for x in range(1, 100):
+        if ws1.cell(row=x, column=2).value == 'xx':
+            print('LINE ' + str(x))
+            return x
+
+
+def find_line_ignore_xx(number):
+    for x in range(1, 100):
+        if ws1.cell(row=x, column=2).value == number:
+            return x
+    return False
+
+
 for x in range(MAX_ARRAY_ROWS):
     ws1.merge_cells('C' + str(x + 12) + ':' + 'F' + str(x + 12))
     ws1['A' + str(x + 12)] = selfPlayers[x][0]
+    last = x + 13
     if selfPlayers[x][0] == 'G':
         for y in range(1, 17):
-            ws1.cell(row=(x+12), column=y).fill = goalieFill
+            ws1.cell(row=(x + 12), column=y).fill = goalieFill
+        for z in range(7, 17):
+            try:
+                ws1.cell(row=(x + 12), column=z).value = 0
+            except AttributeError:
+                None
     elif selfPlayers[x][0] == 'O':
-        for y in range(1,17):
-            ws1.cell(row=(x+12), column=y).fill = offenseFill
+        for y in range(1, 17):
+            ws1.cell(row=(x + 12), column=y).fill = offenseFill
+        for z in range(7, 17):
+            try:
+                ws1.cell(row=(x + 12), column=z).value = 0
+            except AttributeError:
+                None
     elif selfPlayers[x][0] == 'M':
-        for y in range(1,17):
-            ws1.cell(row=(x+12), column=y).fill = midiFill
+        for y in range(1, 17):
+            ws1.cell(row=(x + 12), column=y).fill = midiFill
+        for z in range(7, 17):
+            try:
+                ws1.cell(row=(x + 12), column=z).value = 0
+            except AttributeError:
+                None
     elif selfPlayers[x][0] == 'D':
-        for y in range(1,17):
-            ws1.cell(row=(x+12), column=y).fill = defenseFill
+        for y in range(1, 17):
+            ws1.cell(row=(x + 12), column=y).fill = defenseFill
+        for z in range(7, 17):
+            try:
+                ws1.cell(row=(x + 12), column=z).value = 0
+            except AttributeError:
+                None
     elif selfPlayers[x][0] == 'FM':
-        for y in range(1,17):
-            ws1.cell(row=(x+12), column=y).fill = foFill
-    ws1['B' + str(x + 12)] = selfPlayers[x][2]
-    ws1['C' + str(x + 12)] = selfPlayers[x][1]
+        for y in range(1, 17):
+            ws1.cell(row=(x + 12), column=y).fill = foFill
+        for z in range(7, 17):
+            try:
+                ws1.cell(row=(x + 12), column=z).value = 0
+            except AttributeError:
+                None
+    ws1['B' + str(x + 12)] = selfPlayers[x][1]
+    ws1['C' + str(x + 12)] = selfPlayers[x][2]
+
+for x in range(7, 17):
+    ws1.cell(row=last, column=x).value = 0
+ws1['B' + str(last)] = 'xx'
+ws1.merge_cells('C' + str(last) + ':' + 'F' + str(last))
+ws1.cell(row=last, column=3).value = 'PLACEHOLDER'
+# placeholder player
+
+# score & assist
+i = 0
+for x in range(12, len(selfScoreResult) + 12):
+    if selfScoreResult[i][0] != 'xx' and selfScoreResult[i][0] != '':
+        row = find_line(selfScoreResult[i][0])
+        ws1['H' + str(row)] = int(ws1['H' + str(row)].value) + 1
+    if selfScoreResult[i][1] != 'xx' and selfScoreResult[i][0] != '':
+        row = find_line(selfScoreResult[i][0])
+        ws1['I' + str(row)] = int(ws1['I' + str(row)].value) + 1
+    if selfScoreResult[i][2] != 'xx' and selfScoreResult[i][0] != '':
+        row = find_line(selfScoreResult[i][0])
+        ws1['I' + str(row)] = int(ws1['I' + str(row)].value) + 1
+    i += 1
+i = 0
 
 wb.save(filename=filename)
 os.startfile(filename, 'open')
