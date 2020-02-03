@@ -499,11 +499,11 @@ print(opponentFaceoffResult)
 # goalieFill = PatternFill(patternType='solid', fill_type='solid', bgColor=colors.RED)
 #  = PatternFill(start_color='FFCCFFFF', end_color=
 titleFill = PatternFill("solid", fgColor="FFA500")
-goalieFill = PatternFill("solid", fgColor="DDDDDD")
-offenseFill = PatternFill("solid", fgColor="DDDDDD")
-midiFill = PatternFill("solid", fgColor="E0FFFF")
-defenseFill = PatternFill("solid", fgColor="F08080")
-foFill = PatternFill("solid", fgColor="DDDDDD")
+goalieFill = PatternFill("solid", fgColor="87CEFA")
+offenseFill = PatternFill("solid", fgColor="FFFACD")
+midiFill = PatternFill("solid", fgColor="C0D9AF")
+defenseFill = PatternFill("solid", fgColor="F0F8FF")
+foFill = PatternFill("solid", fgColor="FFC0CB")
 
 data_path = 'selfPlayer.csv'
 with open(data_path) as f:
@@ -548,7 +548,7 @@ ws1['J11'] = 'GRBAL'
 ws1['J11'].fill = titleFill
 ws1['K11'] = 'TURNOV'
 ws1['K11'].fill = titleFill
-ws1['L11'] = 'PENAL'
+ws1['L11'] = 'PENALTY'
 ws1['L11'].fill = titleFill
 ws1['M11'] = 'GOSAV'
 ws1['M11'].fill = titleFill
@@ -592,7 +592,7 @@ for x in range(MAX_ARRAY_ROWS):
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
-    elif selfPlayers[x][0] == 'O':
+    elif selfPlayers[x][0] == 'A':
         for y in range(1, 17):
             ws1.cell(row=(x + 12), column=y).fill = offenseFill
         for z in range(7, 17):
@@ -624,6 +624,7 @@ for x in range(MAX_ARRAY_ROWS):
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
+    # TODO: split midi to amidi an dmidi?
     ws1['B' + str(x + 12)] = selfPlayers[x][1]
     ws1['C' + str(x + 12)] = selfPlayers[x][2]
 
@@ -639,6 +640,7 @@ i = 0
 for x in range(12, len(selfScoreResult) + 12):
     if selfScoreResult[i][0] != 'xx' and selfScoreResult[i][0] != '':
         row = find_line(selfScoreResult[i][0])
+        print(row)
         ws1['H' + str(row)] = int(ws1['H' + str(row)].value) + 1
     if selfScoreResult[i][1] != 'xx' and selfScoreResult[i][0] != '':
         row = find_line(selfScoreResult[i][0])
