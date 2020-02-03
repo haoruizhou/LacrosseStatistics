@@ -37,8 +37,10 @@ def main():
         else:
             print("---SELF Input---")
 
-        if line[0] == 'a':  # score
+        if line[0] == 's':  # score
             print("SCORED")
+        elif line[0] == 'a':
+            print("ATTEMPTED SHOT")
         elif line[0] == 'f':  # FO
             print("FACE-OFF WON")
         elif line[0] == 'b':  # ground ball

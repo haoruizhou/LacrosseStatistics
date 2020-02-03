@@ -23,6 +23,9 @@ opponentScoreResult = np.empty([MAX_ARRAY_ROWS, 5], 'U50')
 selfSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 opponentSaveResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Goalie, Time Happened, Quarter T+]
+selfAttemptResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+opponentAttemptResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+# expected structure: [Main, Time Happened, Quarter T+]
 selfGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Who Picked-up, Time Happened, Quarter T+]
@@ -40,6 +43,8 @@ selfList = []  # storing info about your team
 opponentList = []  # storing info about the opponent team
 selfScoreList = []
 opponentScoreList = []
+selfAttemptList = []
+opponentAttemptList = []
 selfSaveList = []
 opponentSaveList = []
 selfGroundballList = []
@@ -95,7 +100,7 @@ def get_self_score():
     for x in range(linesLen):
         current = selfList[i]
         try:
-            if current[0] == 'a':
+            if current[0] == 's':
                 removed = selfList.pop(i)
                 removed = removed[1:]
                 selfScoreList.append(removed)
@@ -129,7 +134,7 @@ def get_opponent_score():
     for x in range(linesLen):
         current = opponentList[i]
         try:
-            if current[0] == 'a':
+            if current[0] == 's':
                 removed = opponentList.pop(i)
                 removed = removed[1:]
                 opponentScoreList.append(removed)
@@ -156,6 +161,52 @@ def get_opponent_score():
         opponentScoreResult[x][3] = split[1]
         opponentScoreResult[x][4] = split[2]
 
+
+def get_self_attempt():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 'a':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfAttemptList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfScoreList)
+    # i, x = 0, 0  # reset var i, x
+    for x in range(len(selfAttemptList)):
+        split = selfAttemptList[x].split(',')
+        selfAttemptResult[x][0] = split[0]
+        selfAttemptResult[x][1] = split[1]
+        selfAttemptResult[x][2] = split[2]
+
+
+def get_opponent_attempt():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 'a':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentAttemptList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentScoreList)
+    # i, x = 0, 0  # reset var i, x
+    for x in range(len(opponentAttemptList)):
+        split = opponentAttemptList[x].split(',')
+        opponentAttemptResult[x][0] = split[0]
+        opponentAttemptResult[x][1] = split[1]
+        opponentAttemptResult[x][2] = split[2]
+        
 
 def get_self_save():
     linesLen = len(selfList)
@@ -454,6 +505,14 @@ get_opponent_score()
 print("OPPONENT SCORE")
 print(opponentScoreResult)
 
+get_self_attempt()
+print("SELF ATTEMPT")
+print(selfAttemptResult)
+
+get_opponent_attempt()
+print("OPPONENT ATTEMPT")
+print(opponentAttemptResult)
+
 get_self_save()
 print("SELF SAVE")
 print(selfSaveResult)
@@ -503,7 +562,7 @@ goalieFill = PatternFill("solid", fgColor="87CEFA")
 offenseFill = PatternFill("solid", fgColor="FFFACD")
 midiFill = PatternFill("solid", fgColor="C0D9AF")
 defenseFill = PatternFill("solid", fgColor="F0F8FF")
-foFill = PatternFill("solid", fgColor="FFC0CB")
+foFill = PatternFill("solid", fgColor="D8BFD8")
 
 data_path = 'selfPlayer.csv'
 with open(data_path) as f:
@@ -538,21 +597,21 @@ ws1['B11'] = 'NO'
 ws1['B11'].fill = titleFill
 ws1['C11'] = 'NAME'
 ws1['C11'].fill = titleFill
-ws1['G11'] = 'SHOT'
+ws1['G11'] = 'ATPTFAIL'
 ws1['G11'].fill = titleFill
 ws1['H11'] = 'GOAL'
 ws1['H11'].fill = titleFill
 ws1['I11'] = 'ASSIST'
 ws1['I11'].fill = titleFill
-ws1['J11'] = 'GRBAL'
+ws1['J11'] = 'GRBALL'
 ws1['J11'].fill = titleFill
-ws1['K11'] = 'TURNOV'
+ws1['K11'] = 'TURNOVER'
 ws1['K11'].fill = titleFill
 ws1['L11'] = 'PENALTY'
 ws1['L11'].fill = titleFill
-ws1['M11'] = 'GOSAV'
+ws1['M11'] = 'GOSAVE'
 ws1['M11'].fill = titleFill
-ws1['N11'] = 'GOMIS'
+ws1['N11'] = 'GOMISS'
 ws1['N11'].fill = titleFill
 ws1['O11'] = 'FOWIN'
 ws1['O11'].fill = titleFill
@@ -651,5 +710,14 @@ for x in range(12, len(selfScoreResult) + 12):
     i += 1
 i = 0
 
+# attempt
+i = 0
+for x in range(12, len(selfAttemptResult) + 12):
+    if selfAttemptResult[i][0] != 'xx' and selfAttemptResult[i][0] != '':
+        row = find_line(selfAttemptResult[i][0])
+        print(row)
+        ws1['G' + str(row)] = int(ws1['G' + str(row)].value) + 1
+    i += 1
+i = 0
 wb.save(filename=filename)
 os.startfile(filename, 'open')
