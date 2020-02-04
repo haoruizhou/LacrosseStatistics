@@ -206,7 +206,7 @@ def get_opponent_attempt():
         opponentAttemptResult[x][0] = split[0]
         opponentAttemptResult[x][1] = split[1]
         opponentAttemptResult[x][2] = split[2]
-        
+
 
 def get_self_save():
     linesLen = len(selfList)
@@ -563,6 +563,7 @@ offenseFill = PatternFill("solid", fgColor="FFFACD")
 midiFill = PatternFill("solid", fgColor="C0D9AF")
 defenseFill = PatternFill("solid", fgColor="F0F8FF")
 foFill = PatternFill("solid", fgColor="D8BFD8")
+thin_border = Border(top=Side(style='thin'), bottom=Side(style='thin'))
 
 data_path = 'selfPlayer.csv'
 with open(data_path) as f:
@@ -588,7 +589,7 @@ for x in range(6):
     ws1.merge_cells('B' + str(x + 2) + ':' + 'C' + str(x + 2))
     ws1['B' + str(x + 2)] = headingResult[x][0]
 
-ws1.merge_cells('A10:P10')
+ws1.merge_cells('A10:Q10')
 ws1['A10'] = ('TEAM: ' + headingResult[0][0])
 ws1['A10'].alignment = Alignment(horizontal='center')
 ws1['A11'] = 'POS'
@@ -597,7 +598,7 @@ ws1['B11'] = 'NO'
 ws1['B11'].fill = titleFill
 ws1['C11'] = 'NAME'
 ws1['C11'].fill = titleFill
-ws1['G11'] = 'ATPTFAIL'
+ws1['G11'] = 'SHOT'
 ws1['G11'].fill = titleFill
 ws1['H11'] = 'GOAL'
 ws1['H11'].fill = titleFill
@@ -607,7 +608,7 @@ ws1['J11'] = 'GRBALL'
 ws1['J11'].fill = titleFill
 ws1['K11'] = 'TURNOVER'
 ws1['K11'].fill = titleFill
-ws1['L11'] = 'PENALTY'
+ws1['L11'] = 'C-TURNOV'
 ws1['L11'].fill = titleFill
 ws1['M11'] = 'GOSAVE'
 ws1['M11'].fill = titleFill
@@ -617,6 +618,8 @@ ws1['O11'] = 'FOWIN'
 ws1['O11'].fill = titleFill
 ws1['P11'] = 'FOLOSE'
 ws1['P11'].fill = titleFill
+ws1['Q11'] = 'PENALTY'
+ws1['Q11'].fill = titleFill
 ws1.merge_cells('C11:F11')
 ws1['A10'].fill = titleFill
 
@@ -644,41 +647,46 @@ for x in range(MAX_ARRAY_ROWS):
     ws1['A' + str(x + 12)] = selfPlayers[x][0]
     last = x + 13
     if selfPlayers[x][0] == 'G':
-        for y in range(1, 17):
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).fill = goalieFill
-        for z in range(7, 17):
+            ws1.cell(row=(x + 12), column=y).border = thin_border
+        for z in range(7, 18):
             try:
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'A':
-        for y in range(1, 17):
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).fill = offenseFill
-        for z in range(7, 17):
+            ws1.cell(row=(x + 12), column=y).border = thin_border
+        for z in range(7, 18):
             try:
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'M':
-        for y in range(1, 17):
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).fill = midiFill
-        for z in range(7, 17):
+            ws1.cell(row=(x + 12), column=y).border = thin_border
+        for z in range(7, 18):
             try:
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'D':
-        for y in range(1, 17):
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).fill = defenseFill
-        for z in range(7, 17):
+            ws1.cell(row=(x + 12), column=y).border = thin_border
+        for z in range(7, 18):
             try:
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'FM':
-        for y in range(1, 17):
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).fill = foFill
-        for z in range(7, 17):
+            ws1.cell(row=(x + 12), column=y).border = thin_border
+        for z in range(7, 18):
             try:
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
@@ -687,7 +695,7 @@ for x in range(MAX_ARRAY_ROWS):
     ws1['B' + str(x + 12)] = selfPlayers[x][1]
     ws1['C' + str(x + 12)] = selfPlayers[x][2]
 
-for x in range(7, 17):
+for x in range(7, 18):
     ws1.cell(row=last, column=x).value = 0
 ws1['B' + str(last)] = 'xx'
 ws1.merge_cells('C' + str(last) + ':' + 'F' + str(last))
@@ -701,23 +709,27 @@ for x in range(12, len(selfScoreResult) + 12):
         row = find_line(selfScoreResult[i][0])
         print(row)
         ws1['H' + str(row)] = int(ws1['H' + str(row)].value) + 1
-    if selfScoreResult[i][1] != 'xx' and selfScoreResult[i][0] != '':
-        row = find_line(selfScoreResult[i][0])
+    if selfScoreResult[i][1] != 'xx' and selfScoreResult[i][1] != '':
+        row = find_line(selfScoreResult[i][1])
         ws1['I' + str(row)] = int(ws1['I' + str(row)].value) + 1
-    if selfScoreResult[i][2] != 'xx' and selfScoreResult[i][0] != '':
-        row = find_line(selfScoreResult[i][0])
+    if selfScoreResult[i][2] != 'xx' and selfScoreResult[i][2] != '':
+        row = find_line(selfScoreResult[i][2])
         ws1['I' + str(row)] = int(ws1['I' + str(row)].value) + 1
     i += 1
 i = 0
 
-# attempt
+# attempt / SHOT
+# = attempt + goal
 i = 0
-for x in range(12, len(selfAttemptResult) + 12):
+for x in range(12, len(selfPlayers) + 12):
     if selfAttemptResult[i][0] != 'xx' and selfAttemptResult[i][0] != '':
         row = find_line(selfAttemptResult[i][0])
         print(row)
         ws1['G' + str(row)] = int(ws1['G' + str(row)].value) + 1
     i += 1
 i = 0
+for x in range(12, len(selfPlayers) + 12):
+    ws1['G' + str(x)] = int(ws1['G' + str(x)].value) + int(ws1['H' + str(x)].value)
+
 wb.save(filename=filename)
 os.startfile(filename, 'open')
