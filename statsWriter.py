@@ -2,10 +2,6 @@ import numpy as np
 import time
 import sys
 
-names = np.array(
-    [['00', 'Test 00'], ['02', 'Test 02'], ['03', 'Test 03'], ['04', 'Test 04'], ['09', 'Test 09'], ['18', 'Test 18']])
-visitorPlayers = np.array([[]])
-# TODO input visitor players list
 # player0 = main
 # player1 = assist1
 # player2 = assist2

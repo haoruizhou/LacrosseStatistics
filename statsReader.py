@@ -7,9 +7,21 @@ import csv
 import os
 
 # TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
-#  change. To double check, if time difference is bigger than 15 min, quarter change 
+#  change. To double check, if time difference is bigger than 15 min, quarter change
+# TODO: Contribution Over Time? Need to input starting players
+
 
 MAX_ARRAY_ROWS = 10
+
+data_path = 'selfPlayer.csv'
+with open(data_path) as f:
+    reader = csv.reader(f, delimiter=',')
+    selfPlayers = np.array(list(reader)).astype('U50')
+
+print(selfPlayers)
+
+if len(selfPlayers) > MAX_ARRAY_ROWS:
+    MAX_ARRAY_ROWS = len(selfPlayers)
 
 # NEVER FORGET OUR BEST PLAYER: MR. PLACEHOLDER, HIS JERSEY NUMBER IS XX
 headingResult = np.empty([10, 3], 'U50')
@@ -120,7 +132,7 @@ def get_self_score():
         numbers = []
         split = selfScoreList[x].split(',')
 
-        while (len(split[0]) <= 6):
+        while len(split[0]) <= 6:
             split[0] = str(split[0]) + "xx"
 
         for i in range(len(split[0])):
@@ -491,8 +503,8 @@ def get_opponent_exchange():
         opponentExchangeResult[x][1] = str(numbers[2]) + str(numbers[3])
         opponentExchangeResult[x][2] = split[1]
         opponentExchangeResult[x][3] = split[2]
-        
-        
+
+
 def get_self_faceoff():
     linesLen = len(selfList)
     i = 0
@@ -634,16 +646,6 @@ defenseFill = PatternFill("solid", fgColor="F0F8FF")
 foFill = PatternFill("solid", fgColor="D8BFD8")
 thin_border = Border(top=Side(style='thin'), bottom=Side(style='thin'))
 
-data_path = 'selfPlayer.csv'
-with open(data_path) as f:
-    reader = csv.reader(f, delimiter=',')
-    selfPlayers = np.array(list(reader)).astype('U50')
-
-if len(selfPlayers) > MAX_ARRAY_ROWS:
-    MAX_ARRAY_ROWS = len(selfPlayers) + 2
-
-print(selfPlayers)
-
 wb = Workbook()
 filename = headingResult[0][0] + ' vs ' + headingResult[3][0] + '.xlsx'
 ws1 = wb.active
@@ -652,6 +654,8 @@ heading = ['Self', 'Coach', 'Record', 'Opponent', 'Coach', 'Record']
 ws1.merge_cells('A1:C1')
 ws1['A1'] = "Team Information"
 ws1['A1'].fill = titleFill
+
+# write heading
 for x in range(6):
     ws1['A' + str(x + 2)] = heading[x]
     ws1['A' + str(x + 2)].fill = titleFill
@@ -704,17 +708,19 @@ def find_line(number):
             return x
 
 
-def find_line_ignore_xx(number):
+"""def find_line_ignore_xx(number):
     for x in range(1, 100):
         if ws1.cell(row=x, column=2).value == number:
             return x
-    return False
+    return False"""
 
-
+# assign color to different positions
 for x in range(MAX_ARRAY_ROWS):
+
     ws1.merge_cells('C' + str(x + 12) + ':' + 'F' + str(x + 12))
     ws1['A' + str(x + 12)] = selfPlayers[x][0]
     last = x + 13
+
     if selfPlayers[x][0] == 'G':
         for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).fill = goalieFill
@@ -760,7 +766,7 @@ for x in range(MAX_ARRAY_ROWS):
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
-    # TODO: split midi to amidi an dmidi?
+
     ws1['B' + str(x + 12)] = selfPlayers[x][1]
     ws1['C' + str(x + 12)] = selfPlayers[x][2]
 
@@ -770,6 +776,7 @@ ws1['B' + str(last)] = 'xx'
 ws1.merge_cells('C' + str(last) + ':' + 'F' + str(last))
 ws1.cell(row=last, column=3).value = 'PLACEHOLDER'
 # placeholder player
+
 
 # score & assist
 i = 0
@@ -790,7 +797,9 @@ i = 0
 # attempt / SHOT
 # = attempt + goal
 i = 0
+
 for x in range(12, len(selfPlayers) + 12):
+    print("i " + str(i))
     if selfAttemptResult[i][0] != 'xx' and selfAttemptResult[i][0] != '':
         row = find_line(selfAttemptResult[i][0])
         print(row)
@@ -799,6 +808,50 @@ for x in range(12, len(selfPlayers) + 12):
 i = 0
 for x in range(12, len(selfPlayers) + 12):
     ws1['G' + str(x)] = int(ws1['G' + str(x)].value) + int(ws1['H' + str(x)].value)
+
+# groundball
+for x in range(12, len(selfPlayers) + 12):
+    print("i " + str(i))
+    if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
+        row = find_line(selfGroundballResult[i][0])
+        print(row)
+        ws1['G' + str(row)] = int(ws1['J' + str(row)].value) + 1
+    i += 1
+i = 0
+
+# turnover, c-turnover
+for x in range(12, len(selfTurnoverResult) + 12):
+    if selfTurnoverResult[i][0] != 'xx' and selfTurnoverResult[i][0] != '':
+        row = find_line(selfTurnoverResult[i][0])
+        print(row)
+        ws1['H' + str(row)] = int(ws1['K' + str(row)].value) + 1
+    if selfTurnoverResult[i][1] != 'xx' and selfTurnoverResult[i][1] != '':
+        row = find_line(selfTurnoverResult[i][1])
+        ws1['I' + str(row)] = int(ws1['L' + str(row)].value) + 1
+    i += 1
+i = 0
+
+# groundball
+for x in range(12, len(selfPlayers) + 12):
+    print("i " + str(i))
+    if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
+        row = find_line(selfGroundballResult[i][0])
+        print(row)
+        ws1['J' + str(row)] = int(ws1['J' + str(row)].value) + 1
+    i += 1
+i = 0
+
+# faceoff # TODO: faceoff win and lose
+"""for x in range(12, len(selfPlayers) + 12):
+    print("i " + str(i))
+    if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
+        row = find_line(selfGroundballResult[i][0])
+        print(row)
+        ws1['G' + str(row)] = int(ws1['J' + str(row)].value) + 1
+    i += 1
+i = 0"""
+
+# TODO: Penalty
 
 wb.save(filename=filename)
 os.startfile(filename, 'open')
