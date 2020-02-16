@@ -29,6 +29,9 @@ opponentAttemptResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 selfGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Who Picked-up, Time Happened, Quarter T+]
+selfExchangeResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+opponentExchangeResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
+# expected structure: [Who Left, Time Joined, Quarter T+]
 selfTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 opponentTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
@@ -51,6 +54,8 @@ selfGroundballList = []
 opponentGroundballList = []
 selfTurnoverList = []
 opponentTurnoverList = []
+selfExchangeList = []
+opponentExchangeList = []
 selfPenaltyList = []
 opponentPenaltyList = []
 selfFaceoffList = []
@@ -424,6 +429,70 @@ def get_opponent_turnover():
         opponentTurnoverResult[x][3] = split[2]
 
 
+def get_self_exchange():
+    linesLen = len(selfList)
+    i = 0
+    for x in range(linesLen):
+        current = selfList[i]
+        try:
+            if current[0] == 'x':
+                removed = selfList.pop(i)
+                removed = removed[1:]
+                selfExchangeList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(selfExchangeList)
+    # i, x = 0, 0  # reset var i, x
+
+    for x in range(len(selfExchangeList)):
+        numbers = []
+        split = selfExchangeList[x].split(',')
+
+        while len(split[0]) <= 4:
+            split[0] = str(split[0]) + "xx"
+
+        for i in range(len(split[0])):
+            numbers.append(split[0][i])
+        selfExchangeResult[x][0] = str(numbers[0]) + str(numbers[1])
+        selfExchangeResult[x][1] = str(numbers[2]) + str(numbers[3])
+        selfExchangeResult[x][2] = split[1]
+        selfExchangeResult[x][3] = split[2]
+
+
+def get_opponent_exchange():
+    linesLen = len(opponentList)
+    i = 0
+    for x in range(linesLen):
+        current = opponentList[i]
+        try:
+            if current[0] == 'x':
+                removed = opponentList.pop(i)
+                removed = removed[1:]
+                opponentExchangeList.append(removed)
+                i -= 1
+        except IndexError:
+            print("Current line is blank")
+        i += 1
+    # print(opponentExchangeList)
+    # i, x = 0, 0  # reset var i, x
+
+    for x in range(len(opponentExchangeList)):
+        numbers = []
+        split = opponentExchangeList[x].split(',')
+
+        while len(split[0]) <= 4:
+            split[0] = str(split[0]) + "xx"
+
+        for i in range(len(split[0])):
+            numbers.append(split[0][i])
+        opponentExchangeResult[x][0] = str(numbers[0]) + str(numbers[1])
+        opponentExchangeResult[x][1] = str(numbers[2]) + str(numbers[3])
+        opponentExchangeResult[x][2] = split[1]
+        opponentExchangeResult[x][3] = split[2]
+        
+        
 def get_self_faceoff():
     linesLen = len(selfList)
     i = 0

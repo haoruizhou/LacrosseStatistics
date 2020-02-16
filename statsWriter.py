@@ -53,6 +53,8 @@ def main():
             print("GOALIE SAVED")
         elif line[0] == 'c':
             print("GOALIE CLEAR FAILED")
+        elif line[0] == 'x':
+            print("PLAYER CHANGE")
             # clear success = Saved - Failed
         elif line[0] == '+':
             print("NEW QUARTER")
