@@ -84,7 +84,8 @@ for self in lines:
     if self[0] != '#' and self[0] != '*':
         selfList.append(self)
     elif self[0] != '*':
-        opponentList.append(self.replace('#', ''))
+        opponentList.append(self.replace('*', ''))
+        # * for error message; TODO
 
 
 def RGB(rgb): return '#%02x%02x%02x' % (rgb, rgb, rgb)
@@ -542,7 +543,6 @@ def get_self_faceoff():
 
         for i in range(len(split[0])):
             numbers.append(split[0][i])
-        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
         selfFaceoffResult[x][0] = str(numbers[0]) + str(numbers[1])
         selfFaceoffResult[x][1] = str(numbers[2]) + str(numbers[3])
         selfFaceoffResult[x][2] = split[1]
@@ -575,7 +575,6 @@ def get_opponent_faceoff():
 
         for i in range(len(split[0])):
             numbers.append(split[0][i])
-        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
         opponentFaceoffResult[x][0] = str(numbers[0]) + str(numbers[1])
         opponentFaceoffResult[x][1] = str(numbers[2]) + str(numbers[3])
         opponentFaceoffResult[x][2] = split[1]

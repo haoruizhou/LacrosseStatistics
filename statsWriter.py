@@ -1,4 +1,3 @@
-import numpy as np
 import time
 import sys
 
@@ -21,7 +20,7 @@ def main():
     quarterCount = 0
     quarterStart = 0
     while True:
-        line = input("New Line: -, a000000, g00, b00, #\n")
+        line = input("New Line: \n")
         write_txt(line, quarterStart)
         line = list(line)
         side = 's'  # default self
@@ -45,13 +44,14 @@ def main():
             print("TUREOVER")
         elif line[0] == 'p':
             print("PENALTY")
+            # TODO: Penalty in statsReader.py
         elif line[0] == 'g':  # goalie save
             print("GOALIE SAVED")
         elif line[0] == 'c':
             print("GOALIE CLEAR FAILED")
+            # clear success = Saved - Failed
         elif line[0] == 'x':
             print("PLAYER CHANGE")
-            # clear success = Saved - Failed
         elif line[0] == '+':
             print("NEW QUARTER")
             quarterStart = time.strftime('%H%M%S', time.localtime(time.time()))
@@ -62,6 +62,8 @@ def main():
         elif line[0] == '/':
             print("TIME OUT")
             # TODO Time Out Function
+        elif line[0] == '*':
+            print("*TIMER")
         elif line[0] == 'i':  # initializing
             write_txt("i NEW GAME HEADING i", quarterStart)
             home = input("Self Team?\n")
@@ -78,6 +80,7 @@ def main():
             write_txt(("i" + rec), quarterStart)
         elif line[0] == 'r':
             print("ROSTER")
+            # TODO: Roster input
         elif line[0] == 'q':
             sys.exit(0)
 
