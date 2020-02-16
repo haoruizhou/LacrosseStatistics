@@ -5,6 +5,7 @@ from openpyxl.utils import get_column_letter
 import numpy as np
 import csv
 import os
+import matplotlib
 
 # TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
 #  change. To double check, if time difference is bigger than 15 min, quarter change
@@ -84,6 +85,16 @@ for self in lines:
         selfList.append(self)
     elif self[0] != '*':
         opponentList.append(self.replace('#', ''))
+
+
+def RGB(rgb): return '#%02x%02x%02x' % (rgb, rgb, rgb)
+
+
+def depth_chart(percentage):
+    rgb = 255 - 100 * float(percentage)
+    rgb = round(rgb)
+    rgb = RGB(rgb)
+    return rgb[1:]
 
 
 def get_heading():
@@ -722,8 +733,9 @@ for x in range(MAX_ARRAY_ROWS):
     last = x + 13
 
     if selfPlayers[x][0] == 'G':
-        for y in range(1, 18):
+        for y in range(1, 6):
             ws1.cell(row=(x + 12), column=y).fill = goalieFill
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -731,8 +743,9 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'A':
-        for y in range(1, 18):
+        for y in range(1, 6):
             ws1.cell(row=(x + 12), column=y).fill = offenseFill
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -740,8 +753,9 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'M':
-        for y in range(1, 18):
+        for y in range(1, 6):
             ws1.cell(row=(x + 12), column=y).fill = midiFill
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -749,8 +763,9 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'D':
-        for y in range(1, 18):
+        for y in range(1, 6):
             ws1.cell(row=(x + 12), column=y).fill = defenseFill
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -758,8 +773,9 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'FM':
-        for y in range(1, 18):
+        for y in range(1, 6):
             ws1.cell(row=(x + 12), column=y).fill = foFill
+        for y in range(1, 18):
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -815,31 +831,56 @@ for x in range(12, len(selfPlayers) + 12):
     if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
         row = find_line(selfGroundballResult[i][0])
         print(row)
-        ws1['G' + str(row)] = int(ws1['J' + str(row)].value) + 1
+        ws1['J' + str(row)] = int(ws1['J' + str(row)].value) + 1
     i += 1
 i = 0
 
 # turnover, c-turnover
+print(selfTurnoverResult)
 for x in range(12, len(selfTurnoverResult) + 12):
     if selfTurnoverResult[i][0] != 'xx' and selfTurnoverResult[i][0] != '':
         row = find_line(selfTurnoverResult[i][0])
         print(row)
-        ws1['H' + str(row)] = int(ws1['K' + str(row)].value) + 1
+        ws1['K' + str(row)] = int(ws1['K' + str(row)].value) + 1
     if selfTurnoverResult[i][1] != 'xx' and selfTurnoverResult[i][1] != '':
         row = find_line(selfTurnoverResult[i][1])
-        ws1['I' + str(row)] = int(ws1['L' + str(row)].value) + 1
+        ws1['L' + str(row)] = int(ws1['L' + str(row)].value) + 1
     i += 1
 i = 0
 
-# groundball
+# Goalie saved
 for x in range(12, len(selfPlayers) + 12):
-    print("i " + str(i))
-    if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
-        row = find_line(selfGroundballResult[i][0])
+    print("GS")
+    print(selfSaveResult)
+    if selfSaveResult[i][0] != 'xx' and selfSaveResult[i][0] != '':
+        row = find_line(selfSaveResult[i][0])
         print(row)
-        ws1['J' + str(row)] = int(ws1['J' + str(row)].value) + 1
+        ws1['M' + str(row)] = int(ws1['M' + str(row)].value) + 1
     i += 1
 i = 0
+
+for x in range(12, len(selfPlayers) + 12):
+    max = 0.1
+    for y in range(7, 18):
+        value = ws1.cell(row=x, column=y).value
+        try:
+            if value > max:
+                max = value
+        except TypeError:
+            None
+
+    print("MAX: " + str(max))
+
+    for y in range(7, 18):
+        value = ws1.cell(row=x, column=y).value
+        try:
+            percentage = value / max
+        except TypeError:
+            None
+        #print(percentage)
+        rgb = depth_chart(percentage)
+        depthFill = PatternFill("solid", fgColor=rgb)
+        ws1.cell(row=(x), column=y).fill = depthFill
 
 # faceoff # TODO: faceoff win and lose
 """for x in range(12, len(selfPlayers) + 12):

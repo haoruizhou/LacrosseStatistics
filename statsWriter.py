@@ -42,7 +42,7 @@ def main():
         elif line[0] == 'b':  # ground ball
             print("GROUND BALL")
         elif line[0] == 't':
-            print("TAKEOVER")
+            print("TUREOVER")
         elif line[0] == 'p':
             print("PENALTY")
         elif line[0] == 'g':  # goalie save
