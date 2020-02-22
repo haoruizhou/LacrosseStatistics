@@ -5,24 +5,11 @@ from openpyxl.utils import get_column_letter
 import numpy as np
 import csv
 import os
-import matplotlib
 
 # TODO: Timeline? TODO: differentiate quarter change: when T+(previous) > T+(current), that means there's a quarter 
-#  change. To double check, if time difference is bigger than 15 min, quarter change
-# TODO: Contribution Over Time? Need to input starting players
-
+#  change. To double check, if time difference is bigger than 15 min, quarter change 
 
 MAX_ARRAY_ROWS = 10
-
-data_path = 'selfPlayer.csv'
-with open(data_path) as f:
-    reader = csv.reader(f, delimiter=',')
-    selfPlayers = np.array(list(reader)).astype('U50')
-
-print(selfPlayers)
-
-if len(selfPlayers) > MAX_ARRAY_ROWS:
-    MAX_ARRAY_ROWS = len(selfPlayers)
 
 # NEVER FORGET OUR BEST PLAYER: MR. PLACEHOLDER, HIS JERSEY NUMBER IS XX
 headingResult = np.empty([10, 3], 'U50')
@@ -42,9 +29,6 @@ opponentAttemptResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 selfGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 opponentGroundballResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
 # expected structure: [Who Picked-up, Time Happened, Quarter T+]
-selfExchangeResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
-opponentExchangeResult = np.empty([MAX_ARRAY_ROWS, 3], 'U50')
-# expected structure: [Who Left, Time Joined, Quarter T+]
 selfTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 opponentTurnoverResult = np.empty([MAX_ARRAY_ROWS, 4], 'U50')
 # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
@@ -67,8 +51,6 @@ selfGroundballList = []
 opponentGroundballList = []
 selfTurnoverList = []
 opponentTurnoverList = []
-selfExchangeList = []
-opponentExchangeList = []
 selfPenaltyList = []
 opponentPenaltyList = []
 selfFaceoffList = []
@@ -84,18 +66,7 @@ for self in lines:
     if self[0] != '#' and self[0] != '*':
         selfList.append(self)
     elif self[0] != '*':
-        opponentList.append(self.replace('*', ''))
-        # * for error message; TODO
-
-
-def RGB(rgb): return '#%02x%02x%02x' % (rgb, rgb, rgb)
-
-
-def depth_chart(percentage):
-    rgb = 255 - 100 * float(percentage)
-    rgb = round(rgb)
-    rgb = RGB(rgb)
-    return rgb[1:]
+        opponentList.append(self.replace('#', ''))
 
 
 def get_heading():
@@ -144,7 +115,7 @@ def get_self_score():
         numbers = []
         split = selfScoreList[x].split(',')
 
-        while len(split[0]) <= 6:
+        while (len(split[0]) <= 6):
             split[0] = str(split[0]) + "xx"
 
         for i in range(len(split[0])):
@@ -453,70 +424,6 @@ def get_opponent_turnover():
         opponentTurnoverResult[x][3] = split[2]
 
 
-def get_self_exchange():
-    linesLen = len(selfList)
-    i = 0
-    for x in range(linesLen):
-        current = selfList[i]
-        try:
-            if current[0] == 'x':
-                removed = selfList.pop(i)
-                removed = removed[1:]
-                selfExchangeList.append(removed)
-                i -= 1
-        except IndexError:
-            print("Current line is blank")
-        i += 1
-    # print(selfExchangeList)
-    # i, x = 0, 0  # reset var i, x
-
-    for x in range(len(selfExchangeList)):
-        numbers = []
-        split = selfExchangeList[x].split(',')
-
-        while len(split[0]) <= 4:
-            split[0] = str(split[0]) + "xx"
-
-        for i in range(len(split[0])):
-            numbers.append(split[0][i])
-        selfExchangeResult[x][0] = str(numbers[0]) + str(numbers[1])
-        selfExchangeResult[x][1] = str(numbers[2]) + str(numbers[3])
-        selfExchangeResult[x][2] = split[1]
-        selfExchangeResult[x][3] = split[2]
-
-
-def get_opponent_exchange():
-    linesLen = len(opponentList)
-    i = 0
-    for x in range(linesLen):
-        current = opponentList[i]
-        try:
-            if current[0] == 'x':
-                removed = opponentList.pop(i)
-                removed = removed[1:]
-                opponentExchangeList.append(removed)
-                i -= 1
-        except IndexError:
-            print("Current line is blank")
-        i += 1
-    # print(opponentExchangeList)
-    # i, x = 0, 0  # reset var i, x
-
-    for x in range(len(opponentExchangeList)):
-        numbers = []
-        split = opponentExchangeList[x].split(',')
-
-        while len(split[0]) <= 4:
-            split[0] = str(split[0]) + "xx"
-
-        for i in range(len(split[0])):
-            numbers.append(split[0][i])
-        opponentExchangeResult[x][0] = str(numbers[0]) + str(numbers[1])
-        opponentExchangeResult[x][1] = str(numbers[2]) + str(numbers[3])
-        opponentExchangeResult[x][2] = split[1]
-        opponentExchangeResult[x][3] = split[2]
-
-
 def get_self_faceoff():
     linesLen = len(selfList)
     i = 0
@@ -543,6 +450,7 @@ def get_self_faceoff():
 
         for i in range(len(split[0])):
             numbers.append(split[0][i])
+        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
         selfFaceoffResult[x][0] = str(numbers[0]) + str(numbers[1])
         selfFaceoffResult[x][1] = str(numbers[2]) + str(numbers[3])
         selfFaceoffResult[x][2] = split[1]
@@ -575,6 +483,7 @@ def get_opponent_faceoff():
 
         for i in range(len(split[0])):
             numbers.append(split[0][i])
+        # expected structure：[Who Caused, Who Dropped, Time Happened, Quarter T+]
         opponentFaceoffResult[x][0] = str(numbers[0]) + str(numbers[1])
         opponentFaceoffResult[x][1] = str(numbers[2]) + str(numbers[3])
         opponentFaceoffResult[x][2] = split[1]
@@ -656,6 +565,16 @@ defenseFill = PatternFill("solid", fgColor="F0F8FF")
 foFill = PatternFill("solid", fgColor="D8BFD8")
 thin_border = Border(top=Side(style='thin'), bottom=Side(style='thin'))
 
+data_path = 'selfPlayer.csv'
+with open(data_path) as f:
+    reader = csv.reader(f, delimiter=',')
+    selfPlayers = np.array(list(reader)).astype('U50')
+
+if len(selfPlayers) > MAX_ARRAY_ROWS:
+    MAX_ARRAY_ROWS = len(selfPlayers) + 2
+
+print(selfPlayers)
+
 wb = Workbook()
 filename = headingResult[0][0] + ' vs ' + headingResult[3][0] + '.xlsx'
 ws1 = wb.active
@@ -664,8 +583,6 @@ heading = ['Self', 'Coach', 'Record', 'Opponent', 'Coach', 'Record']
 ws1.merge_cells('A1:C1')
 ws1['A1'] = "Team Information"
 ws1['A1'].fill = titleFill
-
-# write heading
 for x in range(6):
     ws1['A' + str(x + 2)] = heading[x]
     ws1['A' + str(x + 2)].fill = titleFill
@@ -718,23 +635,20 @@ def find_line(number):
             return x
 
 
-"""def find_line_ignore_xx(number):
+def find_line_ignore_xx(number):
     for x in range(1, 100):
         if ws1.cell(row=x, column=2).value == number:
             return x
-    return False"""
+    return False
 
-# assign color to different positions
+
 for x in range(MAX_ARRAY_ROWS):
-
     ws1.merge_cells('C' + str(x + 12) + ':' + 'F' + str(x + 12))
     ws1['A' + str(x + 12)] = selfPlayers[x][0]
     last = x + 13
-
     if selfPlayers[x][0] == 'G':
-        for y in range(1, 6):
-            ws1.cell(row=(x + 12), column=y).fill = goalieFill
         for y in range(1, 18):
+            ws1.cell(row=(x + 12), column=y).fill = goalieFill
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -742,9 +656,8 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'A':
-        for y in range(1, 6):
-            ws1.cell(row=(x + 12), column=y).fill = offenseFill
         for y in range(1, 18):
+            ws1.cell(row=(x + 12), column=y).fill = offenseFill
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -752,9 +665,8 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'M':
-        for y in range(1, 6):
-            ws1.cell(row=(x + 12), column=y).fill = midiFill
         for y in range(1, 18):
+            ws1.cell(row=(x + 12), column=y).fill = midiFill
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -762,9 +674,8 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'D':
-        for y in range(1, 6):
-            ws1.cell(row=(x + 12), column=y).fill = defenseFill
         for y in range(1, 18):
+            ws1.cell(row=(x + 12), column=y).fill = defenseFill
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
@@ -772,16 +683,15 @@ for x in range(MAX_ARRAY_ROWS):
             except AttributeError:
                 None
     elif selfPlayers[x][0] == 'FM':
-        for y in range(1, 6):
-            ws1.cell(row=(x + 12), column=y).fill = foFill
         for y in range(1, 18):
+            ws1.cell(row=(x + 12), column=y).fill = foFill
             ws1.cell(row=(x + 12), column=y).border = thin_border
         for z in range(7, 18):
             try:
                 ws1.cell(row=(x + 12), column=z).value = 0
             except AttributeError:
                 None
-
+    # TODO: split midi to amidi an dmidi?
     ws1['B' + str(x + 12)] = selfPlayers[x][1]
     ws1['C' + str(x + 12)] = selfPlayers[x][2]
 
@@ -791,7 +701,6 @@ ws1['B' + str(last)] = 'xx'
 ws1.merge_cells('C' + str(last) + ':' + 'F' + str(last))
 ws1.cell(row=last, column=3).value = 'PLACEHOLDER'
 # placeholder player
-
 
 # score & assist
 i = 0
@@ -812,9 +721,7 @@ i = 0
 # attempt / SHOT
 # = attempt + goal
 i = 0
-
 for x in range(12, len(selfPlayers) + 12):
-    print("i " + str(i))
     if selfAttemptResult[i][0] != 'xx' and selfAttemptResult[i][0] != '':
         row = find_line(selfAttemptResult[i][0])
         print(row)
@@ -823,75 +730,6 @@ for x in range(12, len(selfPlayers) + 12):
 i = 0
 for x in range(12, len(selfPlayers) + 12):
     ws1['G' + str(x)] = int(ws1['G' + str(x)].value) + int(ws1['H' + str(x)].value)
-
-# groundball
-for x in range(12, len(selfPlayers) + 12):
-    print("i " + str(i))
-    if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
-        row = find_line(selfGroundballResult[i][0])
-        print(row)
-        ws1['J' + str(row)] = int(ws1['J' + str(row)].value) + 1
-    i += 1
-i = 0
-
-# turnover, c-turnover
-print(selfTurnoverResult)
-for x in range(12, len(selfTurnoverResult) + 12):
-    if selfTurnoverResult[i][0] != 'xx' and selfTurnoverResult[i][0] != '':
-        row = find_line(selfTurnoverResult[i][0])
-        print(row)
-        ws1['K' + str(row)] = int(ws1['K' + str(row)].value) + 1
-    if selfTurnoverResult[i][1] != 'xx' and selfTurnoverResult[i][1] != '':
-        row = find_line(selfTurnoverResult[i][1])
-        ws1['L' + str(row)] = int(ws1['L' + str(row)].value) + 1
-    i += 1
-i = 0
-
-# Goalie saved
-for x in range(12, len(selfPlayers) + 12):
-    print("GS")
-    print(selfSaveResult)
-    if selfSaveResult[i][0] != 'xx' and selfSaveResult[i][0] != '':
-        row = find_line(selfSaveResult[i][0])
-        print(row)
-        ws1['M' + str(row)] = int(ws1['M' + str(row)].value) + 1
-    i += 1
-i = 0
-
-for x in range(12, len(selfPlayers) + 12):
-    max = 0.1
-    for y in range(7, 18):
-        value = ws1.cell(row=x, column=y).value
-        try:
-            if value > max:
-                max = value
-        except TypeError:
-            None
-
-    print("MAX: " + str(max))
-
-    for y in range(7, 18):
-        value = ws1.cell(row=x, column=y).value
-        try:
-            percentage = value / max
-        except TypeError:
-            None
-        #print(percentage)
-        rgb = depth_chart(percentage)
-        depthFill = PatternFill("solid", fgColor=rgb)
-        ws1.cell(row=(x), column=y).fill = depthFill
-
-# faceoff # TODO: faceoff win and lose
-"""for x in range(12, len(selfPlayers) + 12):
-    print("i " + str(i))
-    if selfGroundballResult[i][0] != 'xx' and selfGroundballResult[i][0] != '':
-        row = find_line(selfGroundballResult[i][0])
-        print(row)
-        ws1['G' + str(row)] = int(ws1['J' + str(row)].value) + 1
-    i += 1
-i = 0"""
-
-# TODO: Penalty
 
 wb.save(filename=filename)
 os.startfile(filename, 'open')

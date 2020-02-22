@@ -1,6 +1,11 @@
+import numpy as np
 import time
 import sys
 
+names = np.array(
+    [['00', 'Test 00'], ['02', 'Test 02'], ['03', 'Test 03'], ['04', 'Test 04'], ['09', 'Test 09'], ['18', 'Test 18']])
+visitorPlayers = np.array([[]])
+# TODO input visitor players list
 # player0 = main
 # player1 = assist1
 # player2 = assist2
@@ -20,7 +25,7 @@ def main():
     quarterCount = 0
     quarterStart = 0
     while True:
-        line = input("New Line: \n")
+        line = input("New Line: -, a000000, g00, b00, #\n")
         write_txt(line, quarterStart)
         line = list(line)
         side = 's'  # default self
@@ -41,17 +46,14 @@ def main():
         elif line[0] == 'b':  # ground ball
             print("GROUND BALL")
         elif line[0] == 't':
-            print("TUREOVER")
+            print("TAKEOVER")
         elif line[0] == 'p':
             print("PENALTY")
-            # TODO: Penalty in statsReader.py
         elif line[0] == 'g':  # goalie save
             print("GOALIE SAVED")
         elif line[0] == 'c':
             print("GOALIE CLEAR FAILED")
             # clear success = Saved - Failed
-        elif line[0] == 'x':
-            print("PLAYER CHANGE")
         elif line[0] == '+':
             print("NEW QUARTER")
             quarterStart = time.strftime('%H%M%S', time.localtime(time.time()))
@@ -62,8 +64,6 @@ def main():
         elif line[0] == '/':
             print("TIME OUT")
             # TODO Time Out Function
-        elif line[0] == '*':
-            print("*TIMER")
         elif line[0] == 'i':  # initializing
             write_txt("i NEW GAME HEADING i", quarterStart)
             home = input("Self Team?\n")
@@ -80,7 +80,6 @@ def main():
             write_txt(("i" + rec), quarterStart)
         elif line[0] == 'r':
             print("ROSTER")
-            # TODO: Roster input
         elif line[0] == 'q':
             sys.exit(0)
 
